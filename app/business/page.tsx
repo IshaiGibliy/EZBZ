@@ -1,12 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { AppShell } from '@/components/AppShell';
 import { HeaderCard } from '@/components/HeaderCard';
 import { SectionTitle } from '@/components/SectionTitle';
 
 type Supplier = { id: string; name: string; phone: string; email: string; };
-
+const router = useRouter();
 export default function BusinessPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [businessId, setBusinessId] = useState('');
@@ -19,7 +20,7 @@ export default function BusinessPage() {
   useEffect(() => {
     if (!supabase) return;
     supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) { window.location.href = '/login'; return; }
+      if (!data.user) { router.push('/login'); return; }
       const { data: biz } = await supabase!.from('businesses').select('id').eq('owner_id', data.user.id).single();
       if (biz) {
         setBusinessId(biz.id);
