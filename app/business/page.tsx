@@ -21,7 +21,7 @@ export default function BusinessPage() {
     if (!supabase) return;
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) { router.push('/login'); return; }
-      const { data: biz } = await supabase!.from('businesses').select('id').eq('owner_id', data.user.id).single();
+      const { data: biz } = await supabase!.from('businesses').select('id').eq('owner_id', data.user.id).maybeSingle();
       if (biz) {
         setBusinessId(biz.id);
         const { data: sups } = await supabase!.from('suppliers').select('*').eq('business_id', biz.id);
