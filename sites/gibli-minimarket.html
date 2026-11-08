@@ -416,7 +416,7 @@ const Store = {
     const o = this.local(); o.analyses = (o.analyses||[]).filter(x=>x.id!==a.id); this.writeLocal(o);
   }
 };
-function reportMeta(r){ return { id: r.id, name: r.name, createdAt: r.createdAt, from: r.from, to: r.to, rowCount: r.rows.length, active: r.active !== false, source: r.source || '' }; }
+function reportMeta(r){ return { id: r.id, name: r.name, createdAt: r.createdAt, from: r.from, to: r.to, rowCount: r.rows.length, active: r.active !== false, source: r.source || '', period: r.period || null }; }
 function encodeChunks(rep){
   const size = 2500, out = [];
   for(let i=0;i<rep.rows.length;i+=size){
@@ -424,7 +424,7 @@ function encodeChunks(rep){
     const rows = part.map(r => {
       const key = r.p + '\u0001' + (r.c||'');
       if(!idx.has(key)){ idx.set(key, prods.length); prods.push([r.p, r.c||'']); }
-      return [r.d, r.h, r.t||'', idx.get(key), r.q, r.s, r.n||0];
+      return [r.d, r.h, r.t||'', idx.get(key), r.q, r.s, r.n||0, r.x||0];
     });
     out.push({ reportId: rep.id, idx: out.length, prods, rows });
   }
@@ -432,7 +432,7 @@ function encodeChunks(rep){
 }
 function decodeChunks(chunks){
   const rows = [];
-  chunks.sort((a,b)=>a.idx-b.idx).forEach(ch => ch.rows.forEach(a => { const p = ch.prods[a[3]]; rows.push({ d:a[0], h:a[1], t:a[2], p:p[0], c:p[1], q:a[4], s:a[5], n:a[6] }); }));
+  chunks.sort((a,b)=>a.idx-b.idx).forEach(ch => ch.rows.forEach(a => { const p = ch.prods[a[3]]; rows.push({ d:a[0], h:a[1], t:a[2], p:p[0], c:p[1], q:a[4], s:a[5], n:a[6], x:a[7]||0 }); }));
   return rows;
 }
 let catTimer = null, fixedTimer = null;
@@ -441,7 +441,7 @@ function queueFixedSave(){ if(S.sample) return; clearTimeout(fixedTimer); fixedT
 
 function rebuildRows(){
   S.rows = [];
-  S.reports.forEach(r => { if(r.active !== false) for(const x of r.rows) S.rows.push(x); });
+  S.reports.forEach(r => { if(r.active !== false) for(const x of r.rows){ if(x.x && r.period) x.pf = r.period.from; S.rows.push(x); } });
   // categories from catalog override empty category in rows
   for(const r of S.rows){ if(!r.c && S.catalog[r.p]?.c) r.c = S.catalog[r.p].c; if(!r.c) r.c = 'ללא קטגוריה'; }
 }
@@ -464,7 +464,8 @@ function analyze(rows, range){
     A.sales += r.s; A.qty += r.q;
     const dd = (A.byDate[r.d] ||= { s:0, tx:new Set(), extra:0 }); dd.s += r.s;
     let key = null;
-    if(r.n){ A.extraTx += r.n; dd.extra += r.n; }
+    if(r.x){ A.hasSummary = true; if(r.pf && (!A.sumFrom || r.pf < A.sumFrom)) A.sumFrom = r.pf; }
+    else if(r.n){ A.extraTx += r.n; dd.extra += r.n; }
     else { if(r.t) key = r.d + '|' + r.t; else { key = 'a|' + r.d + '|' + r.h; A.approxTx = true; } txSet.add(key); dd.tx.add(key); }
     if(r.h >= 0 && r.h < 24){ A.hasHour = true; A.hourSales[r.h] += r.s; if(key) A.hourTx[r.h].add(key); A.dowHour[dowOf(r.d)][r.h] += r.s; }
     A.dowSales[dowOf(r.d)] += r.s;
@@ -482,11 +483,13 @@ function analyze(rows, range){
   A.coverage = A.sales ? A.coveredSales / A.sales : 0;
   A.gpEst = A.margin != null ? A.margin * A.sales : null;
   const ext = dataExtent(rows);
+  if(A.sumFrom && ext[0] && A.sumFrom < ext[0]) ext[0] = A.sumFrom;
   const from = range?.from && ext[0] ? (range.from > ext[0] ? range.from : ext[0]) : ext[0];
   const to = range?.to && ext[1] ? (range.to < ext[1] ? range.to : ext[1]) : ext[1];
   A.from = from; A.to = to;
   A.days = from && to ? dayDiff(from, to) + 1 : 0;
   A.activeDays = Object.keys(A.byDate).length;
+  if(A.hasSummary && A.days) A.activeDays = Math.max(A.activeDays, A.days);
   // products
   A.products = Object.values(A.byProd).map(p => {
     const cost = costOf(p.p);
@@ -676,8 +679,8 @@ function missingBanner(A){
 function kpiTiles(A){
   return `<div class="kpis">
     <div class="kpi"><span class="l">מכירות</span><span class="v">${money(A.sales)}</span><span class="s">${A.days} ימים · ${money(A.activeDays ? A.sales/A.activeDays : 0)} ליום פעילות</span></div>
-    <div class="kpi"><span class="l">מספר עסקאות</span><span class="v">${nf0.format(A.txns)}</span><span class="s">${A.approxTx ? 'חלק מהספירה משוערת' : nf1.format(A.activeDays ? A.txns/A.activeDays : 0) + ' ליום'}</span></div>
-    <div class="kpi"><span class="l">ממוצע עסקה</span><span class="v">${money2(A.avg)}</span><span class="s">${A.itemsPerTx ? nf1.format(A.itemsPerTx) + ' מוצרים שונים בעסקה' : '&nbsp;'}</span></div>
+    <div class="kpi"><span class="l">מספר עסקאות</span><span class="v">${A.txns ? nf0.format(A.txns) : '—'}</span><span class="s">${!A.txns ? 'אין בדוח מספרי קבלות' : A.approxTx ? 'חלק מהספירה משוערת' : nf1.format(A.activeDays ? A.txns/A.activeDays : 0) + ' ליום'}</span></div>
+    <div class="kpi"><span class="l">ממוצע עסקה</span><span class="v">${A.txns ? money2(A.avg) : '—'}</span><span class="s">${A.itemsPerTx ? nf1.format(A.itemsPerTx) + ' מוצרים שונים בעסקה' : '&nbsp;'}</span></div>
     <div class="kpi"><span class="l">רווח גולמי (נמדד)</span><span class="v">${money(A.gp)}</span><span class="s">על ${money(A.coveredSales)} מכירות עם עלות</span></div>
     <div class="kpi"><span class="l">שיעור רווח גולמי</span><span class="v">${pct(A.margin)}</span><span class="s">אומדן לכל המכירות: ${A.gpEst!=null ? money(A.gpEst) : '—'}</span></div>
     <div class="kpi ${A.coverage < .97 ? 'alert' : ''}"><span class="l">מוצרים בלי עלות</span><span class="v">${A.products.filter(p=>p.cost===null).length}</span><span class="s">${pct(1-A.coverage,0)} מהמכירות לא נכנסות לרווח</span></div>
@@ -694,7 +697,7 @@ function viewDashboard(){
   const topP = [...A.products].sort((a,b)=>b.s-a.s).slice(0,10);
   const dowAvg = DOW.map((_,d) => { const n = Object.keys(A.byDate).filter(x=>dowOf(x)===d).length; return n ? A.dowSales[d]/n : 0; });
   const bestDow = dowAvg.indexOf(Math.max(...dowAvg));
-  return `${sampleBanner()}${missingBanner(A)}
+  return `${sampleBanner()}${A.hasSummary ? `<div class="banner info"><p><b>חלק מהנתונים מדוח מסוכם</b> (${heDate(A.sumFrom)} – ${heDate(A.to)}). בדוח כזה אין פירוק לימים, שעות וקבלות, ולכן הגרף היומי, הגרף לפי שעה וממוצע העסקה חלקיים. כדי לקבל אותם, הפק מהקופה דוח מכירות מפורט לפי קבלה.</p></div>` : ''}${missingBanner(A)}
   ${kpiTiles(A)}
   <section class="panel">
     <div class="panel-head"><h2>מכירות לפי יום</h2><p>${filterLabel()}</p></div>
@@ -995,6 +998,7 @@ function buildBasket(A, pairs){
   const impulse = A.products.filter(p => p.unitPrice > 0 && p.unitPrice <= Math.max(6, A.avg*0.15) && p.margin != null && p.margin >= m).sort((a,b)=>b.margin-a.margin).slice(0,4);
   if(impulse.length) out.push({ icon:'◎', t:'מוצרי דחף ליד הקופה', d:`${impulse.map(p=>`${esc(p.p)} (${money2(p.unitPrice)}, ${pct(p.margin,0)} רווח)`).join(', ')}. זולים, רווחיים וקל להוסיף אותם ברגע האחרון.` });
   if(pairs.length > 1){ const x = pairs[1]; out.push({ icon:'⇄', t:`להציב את ${esc(x.b)} ליד ${esc(x.a)}`, d:`${pct(x.confA,0)} ממי שקונה ${esc(x.a)} קונה גם ${esc(x.b)}. כשהם קרובים, גם השאר ייזכרו לקחת.` }); }
+  if(!A.txns) return out;
   const add = A.txns * 0.1 * Math.max(5, A.avg*0.12);
   const perMonth = A.activeDays ? add / A.activeDays * 26 : 0;
   out.push({ icon:'=', t:'מה זה שווה בכסף', d:`אם רק 1 מכל 10 לקוחות יוסיף מוצר של ${money(Math.max(5, A.avg*0.12))}, המכירות יגדלו בכ־${money(perMonth)} בחודש, ורווח גולמי של כ־${money(perMonth*m)}.` });
@@ -1084,7 +1088,7 @@ function exExpenses(A, m, dpm, F, gpMonth){
     { t: `כ־${money(perDay*m*m)} ביום`, ok: false },
   ], Math.round(m*977));
   return { title: 'העלאת שכר: כמה צריך למכור יותר?', q: `עובד מבקש העלאה של <b>₪${nf0.format(raise)}</b> בחודש. החנות פתוחה כ־${nf0.format(dpm)} ימים בחודש, ושיעור הרווח הגולמי שלך ${pct(m)}. כמה מכירות נוספות ביום צריך כדי לכסות את ההעלאה?`,
-    options: opts, explain: `כל שקל מכירה מכניס רק ${pct(m)} רווח גולמי. לכן: ₪${nf0.format(raise)} ÷ ${nf0.format(dpm)} ימים = ${money(naive)} רווח ביום, ובמכירות: ${money(naive)} ÷ ${pct(m)} = <b>${money(perDay)}</b> ביום. זה בערך ${nf1.format(perDay/Math.max(A.avg,1))} עסקאות ממוצעות נוספות ביום. אם העובד הזה עוזר להשיג את זה (פחות תורים, מדפים מלאים) ההעלאה מצדיקה את עצמה.` };
+    options: opts, explain: `כל שקל מכירה מכניס רק ${pct(m)} רווח גולמי. לכן: ₪${nf0.format(raise)} ÷ ${nf0.format(dpm)} ימים = ${money(naive)} רווח ביום, ובמכירות: ${money(naive)} ÷ ${pct(m)} = <b>${money(perDay)}</b> ביום. ${A.txns ? `זה בערך ${nf1.format(perDay/Math.max(A.avg,1))} עסקאות ממוצעות נוספות ביום.` : ''} אם העובד הזה עוזר להשיג את זה (פחות תורים, מדפים מלאים) ההעלאה מצדיקה את עצמה.` };
 }
 
 /* ---------- view: data ---------- */
@@ -1210,11 +1214,12 @@ function parseDelimited(text){
 }
 const FIELDS = {
   sales: [
-    ['date','תאריך',true,['תאריך','date','יום מכירה','ת. עסקה']],
+    ['date','תאריך',false,['תאריך','date','יום מכירה','ת. עסקה']],
     ['time','שעה',false,['שעה','time','זמן']],
     ['count','מספר עסקאות (בדוח מסוכם)',false,['מספר עסקאות','מס עסקאות','כמות עסקאות','מספר קבלות','transactions count','עסקאות']],
     ['txn','מספר קבלה / עסקה',false,['מספר עסקה','מס עסקה','מספר קבלה','קבלה','חשבונית','עסקה','receipt','transaction','ticket','מסמך']],
-    ['cost','עלות ליחידה',false,['מחיר עלות','עלות','מחיר קניה','מחיר קנייה','cost']],
+    ['profit','רווח בש״ח',false,['רווח כספי','רווח בש"ח','רווח בש״ח','רווח ש"ח','רווח']],
+    ['cost','עלות',false,['מחיר עלות','עלות','מחיר קניה','מחיר קנייה','cost']],
     ['product','מוצר',true,['שם פריט','שם מוצר','תיאור פריט','מוצר','פריט','תיאור','item','product','description']],
     ['category','קטגוריה',false,['קטגוריה','מחלקה','קבוצה','category','department','group']],
     ['qty','כמות',false,['כמות','qty','quantity','יחידות','יח׳']],
@@ -1241,7 +1246,7 @@ function prepareMapping(aoa, name, kind){
     let bi = -1, bs = 0;
     headers.forEach((h, i) => {
       if(used.has(i)) return; const hl = h.toLowerCase();
-      kws.forEach((k, ki) => { if(hl.includes(k.toLowerCase())){ let s = 100 - ki + (hl === k.toLowerCase() ? 50 : 0); if(key==='product' && /קוד|ברקוד|מק"ט|מק״ט|barcode|sku/.test(hl)) s -= 200; if(s > bs){ bs = s; bi = i; } } });
+      kws.forEach((k, ki) => { if(hl.includes(k.toLowerCase())){ let s = 100 - ki + (hl === k.toLowerCase() ? 50 : 0); if(key==='product' && /קוד|ברקוד|מק"ט|מק״ט|barcode|sku/.test(hl)) s -= 200; if(['profit','cost','total','price','qty'].includes(key) && /%|אחוז/.test(hl)) s -= 200; if(s > bs){ bs = s; bi = i; } } });
     });
     if(bi >= 0 && bs > 0){ map[key] = bi; used.add(bi); }
   });
@@ -1255,24 +1260,50 @@ function renderMapping(){
   const fields = FIELDS[P.kind];
   el.innerHTML = `<div style="margin-top:16px;display:grid;gap:12px">
     <h3>התאמת עמודות · ${esc(P.name)} <span class="small muted">(${nf0.format(P.data.length)} שורות)</span></h3>
-    <p class="explain">זיהיתי את העמודות אוטומטית. בדוק שכל שדה מתאים לעמודה הנכונה בדוח שלך. שדות עם * חובה. אם אין סכום שורה, הסכום יחושב ממחיר × כמות.</p>
+    <p class="explain">זיהיתי את העמודות אוטומטית. לכל שדה בחר מהרשימה את שם העמודה המתאים בקובץ שלך, ואם אין עמודה כזאת השאר ״— אין —״. חובה רק מוצר וסכום. אם אין סכום שורה, הסכום יחושב ממחיר × כמות. עמודות שלא בחרת (כמו ברקוד או הנחה) פשוט לא ייקראו.</p>
     <div class="maprow">${fields.map(([k,l,req]) => `<div class="field"><label for="map_${k}">${l}${req?' *':''}</label><select id="map_${k}" data-map="${k}"><option value="">— אין —</option>${P.headers.map((h,i)=>`<option value="${i}" ${P.map[k]===i?'selected':''}>${esc(h)}</option>`).join('')}</select></div>`).join('')}</div>
-    ${P.kind === 'sales' ? `<div class="field" style="max-width:340px"><label for="repName">שם הדוח</label><input id="repName" value="${esc(P.name)}"></div>` : ''}
+    ${P.kind === 'sales' ? `<div id="extraOpts"></div><div class="field" style="max-width:340px"><label for="repName">שם הדוח</label><input id="repName" value="${esc(P.name)}"></div>` : ''}
     <div class="tbl-wrap"><table><thead><tr>${P.headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${P.data.slice(0,5).map(r=>`<tr>${P.headers.map((_,i)=>`<td>${esc(fmtCell(r[i]))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
     <div id="mapPreview"></div>
     <div class="row-actions"><button type="button" class="btn primary" id="btnImport">${P.kind==='sales'?'שמור דוח':'עדכן מחירון'}</button><button type="button" class="btn ghost" id="btnCancelImport">ביטול</button></div>
   </div>`;
-  el.querySelectorAll('[data-map]').forEach(s => s.addEventListener('change', () => { const v = s.value; if(v === '') delete P.map[s.dataset.map]; else P.map[s.dataset.map] = +v; previewMapping(); }));
+  el.querySelectorAll('[data-map]').forEach(s => s.addEventListener('change', () => { const v = s.value; if(v === '') delete P.map[s.dataset.map]; else P.map[s.dataset.map] = +v; if(s.dataset.map === 'cost') P.costMode = null; renderExtraOpts(); previewMapping(); }));
+  renderExtraOpts();
   $('#btnCancelImport').addEventListener('click', () => { S.pending = null; el.innerHTML = ''; });
   $('#btnImport').addEventListener('click', () => P.kind === 'sales' ? importSales() : importCatalog());
   previewMapping();
+}
+function guessCostMode(P){
+  const M = P.map; if(M.cost == null) return 'unit';
+  const ratios = [];
+  for(const r of P.data.slice(0, 400)){
+    const q = M.qty != null ? num(r[M.qty]) : 1, k = num(r[M.cost]);
+    let s = M.total != null ? num(r[M.total]) : NaN; if(isNaN(s) && M.price != null) s = num(r[M.price]) * q;
+    if(!(q > 1) || !(k > 0) || !(s > 0)) continue;
+    if(M.profit != null){ const pr = num(r[M.profit]); if(!isNaN(pr)){ const line = s - pr; ratios.push(Math.abs(k - line) < Math.abs(k*q - line) ? 2 : 0.5); continue; } }
+    ratios.push(k / (s / q));
+  }
+  return median(ratios) > 1.2 ? 'line' : 'unit';
+}
+function renderExtraOpts(){
+  const P = S.pending, el = $('#extraOpts'); if(!el || P.kind !== 'sales') return;
+  if(!P.period){ const t = ymd(new Date()); P.period = { from: addDays(t, -6), to: t }; }
+  if(P.map.cost != null && !P.costMode) P.costMode = guessCostMode(P);
+  let h = '';
+  if(P.map.date == null) h += `<div class="banner info" style="margin-bottom:10px"><p><b>אין בדוח עמודת תאריך.</b> זה כנראה דוח מסוכם לפי מוצר. בחר לאיזו תקופה הוא שייך, כדי שהמערכת תחשב קצב מכירה ליום ותוכל להשוות בין תקופות.</p></div>
+    <div class="form-grid" style="max-width:520px;margin-bottom:10px"><div class="field"><label for="perFrom">הדוח מתאריך *</label><input type="date" id="perFrom" value="${P.period.from}"></div><div class="field"><label for="perTo">עד תאריך *</label><input type="date" id="perTo" value="${P.period.to}"></div></div>`;
+  if(P.map.cost != null) h += `<div class="field" style="max-width:340px;margin-bottom:10px"><label for="costMode">עמודת העלות בדוח היא</label><select id="costMode"><option value="unit" ${P.costMode==='unit'?'selected':''}>עלות של יחידה אחת</option><option value="line" ${P.costMode==='line'?'selected':''}>עלות כוללת של השורה (כל הכמות)</option></select></div>`;
+  el.innerHTML = h;
+  $('#perFrom')?.addEventListener('change', e => { P.period.from = e.target.value; previewMapping(); });
+  $('#perTo')?.addEventListener('change', e => { P.period.to = e.target.value; previewMapping(); });
+  $('#costMode')?.addEventListener('change', e => { P.costMode = e.target.value; previewMapping(); });
 }
 function fmtCell(v){ if(v instanceof Date) return isNaN(v) ? '' : ymd(v) + (v.getHours()||v.getMinutes() ? ' ' + String(v.getHours()).padStart(2,'0') + ':' + String(v.getMinutes()).padStart(2,'0') : ''); return v; }
 function previewMapping(){
   const P = S.pending, el = $('#mapPreview'); if(!el) return;
   if(P.kind === 'catalog'){ el.innerHTML = P.map.product == null ? '<p class="msg err">בחר את עמודת המוצר.</p>' : ''; return; }
   const { rows, skipped, warn } = buildRows(P);
-  const tot = sum(rows.map(r=>r.s)), [a,b] = dataExtent(rows);
+  const tot = sum(rows.map(r=>r.s)); let [a,b] = dataExtent(rows); if(P.map.date == null && P.period) a = P.period.from;
   el.innerHTML = rows.length ? `<p class="msg ok">${nf0.format(rows.length)} שורות מכירה · ${money(tot)} · ${heDate(a)} – ${heDate(b)}${skipped ? ` · ${nf0.format(skipped)} שורות דולגו (חסר תאריך, מוצר או סכום, או שורות סיכום)` : ''}</p>${warn.map(w=>`<p class="small muted">• ${esc(w)}</p>`).join('')}` : `<p class="msg err">לא נמצאו שורות תקינות. ודא שבחרת עמודות של תאריך, מוצר וסכום (או מחיר).</p>`;
 }
 function num(v){ if(typeof v === 'number') return v; if(v == null) return NaN; let s = String(v).replace(/[₪\s,]/g,'').replace(/[^\d.\-()]/g,''); if(/^\(.*\)$/.test(s)) s = '-' + s.slice(1,-1); if(/-$/.test(s)) s = '-' + s.slice(0,-1); return s === '' ? NaN : parseFloat(s); }
@@ -1296,9 +1327,11 @@ function parseHour(v){
 }
 function buildRows(P){
   const M = P.map, rows = [], warn = []; let skipped = 0, costHits = {};
-  if(M.date == null || M.product == null || (M.total == null && M.price == null)) return { rows, skipped: P.data.length, warn };
+  const summary = M.date == null;
+  if(M.product == null || (M.total == null && M.price == null)) return { rows, skipped: P.data.length, warn };
+  if(summary && !(P.period?.from && P.period?.to && P.period.from <= P.period.to)) return { rows, skipped: P.data.length, warn: ['בחר תקופה תקינה לדוח (מתאריך ועד תאריך).'] };
   for(const r of P.data){
-    const pd = parseDate(r[M.date]); const p = String(r[M.product] ?? '').trim();
+    const pd = summary ? { d: P.period.to, h: null } : parseDate(r[M.date]); const p = String(r[M.product] ?? '').trim();
     if(!pd || !p || /^סה["״]?כ|^total|^סיכום/i.test(p)){ skipped++; continue; }
     const q0 = M.qty != null ? num(r[M.qty]) : 1; const q = isNaN(q0) ? 1 : q0;
     let s = M.total != null ? num(r[M.total]) : NaN;
@@ -1308,13 +1341,16 @@ function buildRows(P){
     const c = M.category != null ? String(r[M.category] ?? '').trim() : '';
     const t = M.txn != null ? String(r[M.txn] ?? '').trim() : '';
     const n = M.count != null ? (num(r[M.count]) || 0) : 0;
-    rows.push({ d: pd.d, h, t, p, c, q, s: Math.round(s*100)/100, n });
-    if(M.cost != null){ const k = num(r[M.cost]); if(!isNaN(k) && k > 0) costHits[p] = k; }
+    rows.push({ d: pd.d, h, t, p, c, q, s: Math.round(s*100)/100, n, x: summary ? 1 : 0 });
+    if(M.cost != null){ const k = num(r[M.cost]); if(!isNaN(k) && k > 0 && q > 0) costHits[p] = P.costMode === 'line' ? k / q : k; }
+    else if(M.profit != null){ const pr = num(r[M.profit]); if(!isNaN(pr) && q > 0 && s > 0) costHits[p] = Math.max(0, (s - pr) / q); }
   }
-  if(M.txn == null && M.count == null) warn.push('אין עמודת מספר קבלה: מספר העסקאות יוערך לפי תאריך ושעה, ולא יהיה ניתוח של מוצרים שנקנים יחד.');
-  if(M.time == null && !rows.some(r => r.h >= 0)) warn.push('אין שעות בדוח: לא יוצגו מכירות לפי שעה ומפת חום.');
-  if(M.cost == null) warn.push('אין עמודת עלות: אפשר להשלים עלויות בהמשך במסך המוצרים או להעלות קובץ עלויות.');
-  const dup = S.reports.find(r => { const [a,b] = dataExtent(rows); return r.active !== false && a && r.from && !(b < r.from || a > r.to); });
+  if(summary) warn.push(`כל השורות ישויכו לתקופה ${heDate(P.period.from)} – ${heDate(P.period.to)}. ממוצע עסקה, שעות ומוצרים שנקנים יחד לא יחושבו מדוח כזה.`);
+  else if(M.txn == null && M.count == null) warn.push('אין עמודת מספר קבלה: מספר העסקאות יוערך לפי תאריך ושעה, ולא יהיה ניתוח של מוצרים שנקנים יחד.');
+  if(M.cost == null && M.profit != null) warn.push('אין עמודת עלות, אבל יש רווח בש״ח: העלות ליחידה תחושב מהסכום פחות הרווח.');
+  if(!summary && M.time == null && !rows.some(r => r.h >= 0)) warn.push('אין שעות בדוח: לא יוצגו מכירות לפי שעה ומפת חום.');
+  if(M.cost == null && M.profit == null) warn.push('אין עמודת עלות: אפשר להשלים עלויות בהמשך במסך המוצרים או להעלות קובץ עלויות.');
+  const dup = S.reports.find(r => { let [a,b] = dataExtent(rows); if(summary) a = P.period.from; const rf = r.period?.from || r.from; return r.active !== false && a && rf && !(b < rf || a > r.to); });
   if(dup && !S.sample) warn.push(`התקופה חופפת לדוח ״${dup.name}״. אם זה אותו דוח, בטל אחד מהם ב״כלול״ כדי לא לספור פעמיים.`);
   P.costHits = costHits;
   return { rows, skipped, warn };
@@ -1330,9 +1366,9 @@ async function importSales(){
   const btn = $('#btnImport'); btn.disabled = true; btn.textContent = 'שומר…';
   leaveSample();
   const [a, b] = dataExtent(rows);
-  const rep = { id: uid(), name: ($('#repName')?.value || P.name).trim() || 'דוח', createdAt: new Date().toISOString(), from: a, to: b, rows, active: true, source: 'upload' };
+  const rep = { id: uid(), name: ($('#repName')?.value || P.name).trim() || 'דוח', createdAt: new Date().toISOString(), from: P.map.date == null ? P.period.from : a, to: b, rows, active: true, source: 'upload', period: P.map.date == null ? { ...P.period } : null };
   rows.forEach(r => { if(!S.catalog[r.p]) S.catalog[r.p] = { c: r.c || '', cost: null }; else if(!S.catalog[r.p].c && r.c) S.catalog[r.p].c = r.c; });
-  Object.entries(P.costHits || {}).forEach(([p, k]) => { if(S.catalog[p].cost == null) S.catalog[p].cost = k; });
+  Object.entries(P.costHits || {}).forEach(([p, k]) => { S.catalog[p].cost = Math.round(k*100)/100; });
   S.reports.push(rep); S.pending = null; rebuildRows();
   try { await Store.saveReport(rep); await Store.saveCatalog(S.catalog); toast('הדוח נשמר: ' + nf0.format(rows.length) + ' שורות'); }
   catch(e){ toast('הדוח נטען אבל לא נשמר: ' + (e.message || e.code || '')); }
