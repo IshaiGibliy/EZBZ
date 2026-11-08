@@ -1,0 +1,1499 @@
+<title>מינימרקט ג׳יבלי</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Secular+One&display=swap">
+<style>
+/* Layout: sticky shop sign + tab strip, one filter row, then a single working column of panels per tab. */
+:root {
+  --bg: #f3f6f2;
+  --surface: #ffffff;
+  --surface-2: #eaf0ea;
+  --ink: #15241f;
+  --muted: #5a6a63;
+  --line: #d6dfd8;
+  --accent: #1d7a52;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcefe4;
+  --tag: #f2c230;
+  --tag-ink: #2b2205;
+  --series-a: #1d7a52;
+  --series-b: #3f68b8;
+  --good: #1f7a3d;
+  --warn: #a8670c;
+  --bad: #b8382a;
+  --good-soft: #e1f2e6;
+  --warn-soft: #fbefd9;
+  --bad-soft: #f8e1dd;
+  --heat-0: #eef4ef;
+  --heat-1: #1d7a52;
+  --shadow: 0 1px 2px rgba(20,40,30,.06), 0 4px 14px rgba(20,40,30,.05);
+  --font-display: "Secular One", "Assistant", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Arial Hebrew", "Segoe UI", Arial, sans-serif;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1513; --surface: #16211e; --surface-2: #1d2a26; --ink: #e5eee9; --muted: #95a8a0;
+    --line: #2b3a35; --accent: #3aa572; --accent-ink: #06140d; --accent-soft: #1d3a2d;
+    --tag: #f2c230; --tag-ink: #2b2205; --series-a: #3aa572; --series-b: #6f93e0;
+    --good: #5cc283; --warn: #e3a648; --bad: #ef7b6b; --good-soft: #17352a; --warn-soft: #3a2d14; --bad-soft: #3d1f1b;
+    --heat-0: #1b2723; --heat-1: #3aa572; --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1513; --surface: #16211e; --surface-2: #1d2a26; --ink: #e5eee9; --muted: #95a8a0;
+  --line: #2b3a35; --accent: #3aa572; --accent-ink: #06140d; --accent-soft: #1d3a2d;
+  --tag: #f2c230; --tag-ink: #2b2205; --series-a: #3aa572; --series-b: #6f93e0;
+  --good: #5cc283; --warn: #e3a648; --bad: #ef7b6b; --good-soft: #17352a; --warn-soft: #3a2d14; --bad-soft: #3d1f1b;
+  --heat-0: #1b2723; --heat-1: #3aa572; --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); }
+.app { min-height: 100vh; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.num, td.n, .kpi .v { font-variant-numeric: tabular-nums; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; margin: 0; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.08rem; }
+p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* header */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--surface); border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 14px; padding-block: 12px 6px; flex-wrap: wrap; }
+.sign { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.sign h1 { font-size: 1.6rem; line-height: 1.1; }
+.sign .pricetag { background: var(--tag); color: var(--tag-ink); font-family: var(--font-display); font-size: .78rem; padding: 2px 10px 2px 12px; border-radius: 3px 12px 12px 3px; position: relative; white-space: nowrap; }
+.brand .spacer { flex: 1; }
+.status { font-size: .82rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block; }
+.dot.ok { background: var(--good); } .dot.warn { background: var(--warn); }
+nav.tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+nav.tabs::-webkit-scrollbar { display: none; }
+nav.tabs a { padding: 9px 14px 10px; color: var(--muted); text-decoration: none; font-weight: 700; white-space: nowrap; border-bottom: 3px solid transparent; }
+nav.tabs a:hover { color: var(--ink); }
+nav.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); padding: 7px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.small { padding: 4px 10px; font-size: .86rem; }
+.btn.ghost { background: transparent; }
+.btn.danger { color: var(--bad); }
+.btn:disabled { opacity: .5; cursor: default; }
+
+/* filter bar */
+.filters { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: end; padding-block: 14px; }
+.field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.field label { font-size: .78rem; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
+.field input, .field select, .field textarea { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; min-width: 0; }
+.field input[type="date"] { min-width: 140px; }
+.field select { max-width: 220px; }
+.quick { display: flex; gap: 4px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 11px; font-size: .84rem; cursor: pointer; }
+.chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* panels */
+main { padding-block: 4px 60px; display: grid; gap: 18px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; min-width: 0; }
+.panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.panel-head p { color: var(--muted); font-size: .9rem; }
+.explain { color: var(--muted); font-size: .92rem; max-width: 70ch; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 18px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px; }
+.banner { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 12px 16px; border-radius: var(--r); background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent); }
+.banner.info { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.banner b { font-weight: 800; }
+.banner p { flex: 1 1 280px; }
+
+/* kpis */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 12px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.kpi .l { color: var(--muted); font-size: .84rem; font-weight: 600; }
+.kpi .v { font-size: 1.6rem; font-weight: 800; line-height: 1.15; }
+.kpi .s { font-size: .8rem; color: var(--muted); }
+.kpi.alert { border-color: color-mix(in srgb, var(--warn) 55%, transparent); background: var(--warn-soft); }
+
+/* tables */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { background: var(--surface-2); font-weight: 700; font-size: .8rem; color: var(--muted); position: sticky; top: 0; cursor: default; }
+th.sort { cursor: pointer; }
+th.sort:hover { color: var(--ink); }
+tr:last-child td { border-bottom: 0; }
+td.n, th.n { text-align: left; }
+td.wrap { white-space: normal; min-width: 180px; }
+.scroll-y { max-height: 460px; overflow-y: auto; }
+input.cost { width: 82px; border: 1px solid var(--line); border-radius: 6px; padding: 3px 6px; background: var(--surface); text-align: left; }
+input.cost.missing { border-color: var(--warn); background: var(--warn-soft); }
+
+/* pills */
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 1px 9px; border-radius: 999px; font-size: .78rem; font-weight: 700; white-space: nowrap; }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.neutral { background: var(--surface-2); color: var(--muted); }
+.up { color: var(--good); font-weight: 700; } .down { color: var(--bad); font-weight: 700; }
+
+/* bars */
+.hbars { display: grid; gap: 7px; }
+.hbar { display: grid; grid-template-columns: minmax(90px, 32%) 1fr auto; gap: 10px; align-items: center; font-size: .9rem; }
+.hbar .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hbar .track { height: 14px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+.hbar .fill { height: 100%; background: var(--series-a); border-radius: 4px 0 0 4px; }
+.hbar .val { font-variant-numeric: tabular-nums; min-width: 72px; text-align: left; font-weight: 600; }
+
+/* charts */
+.chart { position: relative; width: 100%; direction: ltr; }
+.chart svg { display: block; width: 100%; overflow: visible; }
+.chart text { fill: var(--muted); font-size: 11px; font-family: var(--font-body); }
+.chart .grid line { stroke: var(--line); stroke-width: 1; }
+.tip { position: fixed; z-index: 50; pointer-events: none; background: var(--ink); color: var(--bg); padding: 6px 10px; border-radius: 6px; font-size: .82rem; line-height: 1.35; direction: rtl; box-shadow: var(--shadow); max-width: 240px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .84rem; color: var(--muted); margin-top: 6px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-left: 5px; }
+
+.heat { display: grid; gap: 2px; direction: ltr; font-size: .72rem; overflow-x: auto; }
+.heat .row { display: grid; grid-template-columns: 34px repeat(var(--cols), minmax(22px, 1fr)); gap: 2px; min-width: max-content; }
+.heat .cell { height: 24px; border-radius: 3px; background: var(--heat-0); }
+.heat .lab { color: var(--muted); display: flex; align-items: center; justify-content: center; }
+
+/* exercise */
+.exercise { border: 1px dashed color-mix(in srgb, var(--accent) 60%, transparent); background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface)); border-radius: var(--r); padding: 18px; display: grid; gap: 12px; }
+.exercise .eyebrow { font-size: .76rem; letter-spacing: .06em; font-weight: 800; color: var(--accent); }
+.exercise .q { font-size: 1rem; max-width: 75ch; }
+.exercise .opts { display: grid; gap: 8px; }
+.exercise .opt { text-align: right; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 9px 12px; cursor: pointer; }
+.exercise .opt:hover { border-color: var(--accent); }
+.exercise .opt.right { border-color: var(--good); background: var(--good-soft); }
+.exercise .opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.exercise .sol { background: var(--surface); border-radius: 8px; padding: 12px 14px; border: 1px solid var(--line); max-width: 80ch; }
+.exercise .sol b { font-weight: 800; }
+
+/* cards in lists */
+.reco { display: grid; gap: 10px; }
+.reco-item { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: start; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; }
+.reco-item .ico { grid-row: span 2; width: 34px; height: 34px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-family: var(--font-display); font-size: 1rem; }
+.reco-item .t { font-weight: 700; }
+.reco-item .d { color: var(--muted); font-size: .9rem; }
+
+/* data tab */
+.drop { border: 2px dashed var(--line); border-radius: var(--r); padding: 26px; text-align: center; display: grid; gap: 8px; justify-items: center; cursor: pointer; }
+.drop.over { border-color: var(--accent); background: var(--accent-soft); }
+.drop strong { font-size: 1.05rem; }
+.maprow { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 10px; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 10px; align-items: end; }
+.row-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+textarea.paste { width: 100%; min-height: 110px; direction: ltr; font-family: ui-monospace, Menlo, monospace; font-size: .82rem; }
+.msg { font-size: .9rem; padding: 8px 12px; border-radius: 8px; }
+.msg.ok { background: var(--good-soft); color: var(--good); }
+.msg.err { background: var(--bad-soft); color: var(--bad); }
+
+/* modal */
+.modal-bg { position: fixed; inset: 0; background: rgba(5,15,10,.45); z-index: 60; display: grid; place-items: center; padding: 16px; }
+.modal { background: var(--surface); border-radius: 12px; max-width: 640px; width: 100%; max-height: 90vh; overflow: auto; padding: 20px; display: grid; gap: 14px; }
+.modal textarea { width: 100%; min-height: 260px; font-size: .85rem; }
+.toast { position: fixed; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 9px 18px; border-radius: 999px; z-index: 70; font-weight: 600; }
+
+.muted { color: var(--muted); }
+.small { font-size: .85rem; }
+.empty { padding: 26px; text-align: center; color: var(--muted); }
+@media (max-width: 560px) {
+  .sign h1 { font-size: 1.3rem; }
+  .kpi .v { font-size: 1.3rem; }
+  .panel { padding: 14px; }
+  .hbar { grid-template-columns: minmax(70px, 34%) 1fr auto; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fill { transition: width .4s ease; }
+}
+</style>
+
+<div class="app" dir="rtl" lang="he" id="app">
+  <header class="top">
+    <div class="wrap">
+      <div class="brand">
+        <div class="sign"><h1>מינימרקט ג׳יבלי</h1><span class="pricetag">ניהול וניתוח קופה</span></div>
+        <div class="spacer"></div>
+        <span class="status" id="status"><span class="dot"></span>טוען…</span>
+        <button class="btn small" id="btnSave" type="button">שמור ניתוח</button>
+        <button class="btn small primary" id="btnExport" type="button">ייצוא סיכום</button>
+      </div>
+      <nav class="tabs" id="tabs" aria-label="מסכים">
+        <a href="#dashboard" data-tab="dashboard">לוח בקרה</a>
+        <a href="#products" data-tab="products">מוצרים ורווח</a>
+        <a href="#compare" data-tab="compare">השוואת תקופות</a>
+        <a href="#actions" data-tab="actions">המלצות</a>
+        <a href="#expenses" data-tab="expenses">הוצאות קבועות</a>
+        <a href="#data" data-tab="data">נתונים ודוחות</a>
+      </nav>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="filters" id="filters"></div>
+    <main id="view"></main>
+  </div>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+(function(){
+"use strict";
+document.documentElement.setAttribute('dir','rtl');
+document.documentElement.setAttribute('lang','he');
+
+/* ---------- helpers ---------- */
+const $ = (s, el=document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nf0 = new Intl.NumberFormat('he-IL', {maximumFractionDigits:0});
+const nf1 = new Intl.NumberFormat('he-IL', {maximumFractionDigits:1});
+const nf2 = new Intl.NumberFormat('he-IL', {minimumFractionDigits:2, maximumFractionDigits:2});
+const money = v => (v < 0 ? '-' : '') + '₪' + nf0.format(Math.abs(Math.round(v||0)));
+const money2 = v => (v < 0 ? '-' : '') + '₪' + nf2.format(Math.abs(v||0));
+const pct = (v, d=1) => (v==null || !isFinite(v)) ? '—' : (d ? nf1.format(v*100) : nf0.format(v*100)) + '%';
+const signPct = v => (v==null || !isFinite(v)) ? '—' : (v>0?'+':'') + nf1.format(v*100) + '%';
+const DOW = ['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
+const DOW_FULL = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+const ymd = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+const parseYmd = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const addDays = (s, n) => { const d = parseYmd(s); d.setDate(d.getDate()+n); return ymd(d); };
+const dayDiff = (a, b) => Math.round((parseYmd(b) - parseYmd(a)) / 864e5);
+const dowOf = s => parseYmd(s).getDay();
+const heDate = s => { if(!s) return '—'; const [y,m,d] = s.split('-'); return `${+d}.${+m}.${y.slice(2)}`; };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const sum = a => a.reduce((x,y)=>x+y,0);
+const median = a => { if(!a.length) return 0; const s=[...a].sort((x,y)=>x-y); const m=s.length>>1; return s.length%2?s[m]:(s[m-1]+s[m])/2; };
+const quant = (a, q) => { if(!a.length) return 0; const s=[...a].sort((x,y)=>x-y); return s[Math.min(s.length-1, Math.floor(q*(s.length-1)))]; };
+function toast(t){ const el=document.createElement('div'); el.className='toast'; el.textContent=t; document.body.appendChild(el); setTimeout(()=>el.remove(), 2600); }
+
+/* ---------- state ---------- */
+const S = {
+  sample: true,
+  reports: [],          // {id,name,createdAt,from,to,rowCount,active,rows:[...] }
+  catalog: {},          // name -> {c, cost, stock, lead}
+  fixed: { electricity: 0, arnona: 0, bank: 0, salary: 0, loans: 0, rent: 0, other: 0 },
+  analyses: [],
+  rows: [],
+  filter: { from: '', to: '', cat: '', prod: '' },
+  cmp: { aFrom:'', aTo:'', bFrom:'', bTo:'' },
+  plan: { lead: 2, cover: 7 },
+  sort: { products: { k: 's', dir: -1 } },
+  answered: {},
+  pending: null,        // parsed upload awaiting mapping
+  tab: 'dashboard',
+};
+
+/* ---------- sample data (shown until the first real report is saved) ---------- */
+function rng(seed){ let s = seed>>>0; return () => { s = (s*1664525 + 1013904223)>>>0; return s/4294967296; }; }
+const SAMPLE_PRODUCTS = [
+  ['חלב 3% 1 ליטר','חלב ומוצריו',6.9,5.1,40],['קוטג׳ 5%','חלב ומוצריו',6.5,4.6,30],['גבינה לבנה 5%','חלב ומוצריו',5.9,4.2,24],['יוגורט פירות','חלב ומוצריו',4.5,2.9,36],['שוקו בשקית','חלב ומוצריו',4.2,2.6,50],['חמאה 200 גר׳','חלב ומוצריו',9.9,7.4,12],
+  ['לחם אחיד פרוס','לחם ומאפים',7.9,6.2,30],['לחמניות 6 יח׳','לחם ומאפים',9.5,6.1,18],['חלה','לחם ומאפים',12,7.8,10],['בורקס גבינה','לחם ומאפים',6,2.9,null],['פיתות 10 יח׳','לחם ומאפים',8.9,5.9,20],
+  ['קולה 1.5 ליטר','משקאות',8.9,5.4,60],['מים מינרליים 1.5','משקאות',4.5,1.9,80],['מיץ תפוזים 1 ליטר','משקאות',11.9,7.6,20],['פחית אנרגיה','משקאות',8,4.1,36],['בירה 500 מ״ל','משקאות',9.9,5.8,48],['סודה 1.5 ליטר','משקאות',4.9,2.4,30],
+  ['במבה 80 גר׳','חטיפים ומתוקים',5.5,3.3,60],['ביסלי גריל','חטיפים ומתוקים',5.5,3.4,50],['שוקולד חלב','חטיפים ומתוקים',6.5,3.9,40],['מסטיק','חטיפים ומתוקים',4,1.6,80],['ופלים','חטיפים ומתוקים',7.9,4.4,24],['עוגיות שוקולד צ׳יפס','חטיפים ומתוקים',12.9,7.5,null],
+  ['עגבניות לק״ג','פירות וירקות',8.9,5.2,null],['מלפפונים לק״ג','פירות וירקות',7.9,4.6,null],['בננות לק״ג','פירות וירקות',9.9,6.4,null],['תפוחי אדמה לק״ג','פירות וירקות',5.9,3.1,null],
+  ['קפה נמס 200 גר׳','שימורים ויבשים',29.9,21.5,10],['פסטה 500 גר׳','שימורים ויבשים',5.9,3.6,30],['אורז 1 ק״ג','שימורים ויבשים',9.9,6.9,16],['טונה בשמן','שימורים ויבשים',7.5,5.4,40],['שמן קנולה 1 ליטר','שימורים ויבשים',11.9,8.6,14],['טחינה גולמית','שימורים ויבשים',16.9,10.4,8],
+  ['נייר טואלט 12','ניקיון ופארם',29.9,22.1,8],['נוזל כלים','ניקיון ופארם',9.9,5.2,12],['מגבונים לחים','ניקיון ופארם',8.9,4.1,14],['שקיות זבל','ניקיון ופארם',12.9,6.7,10],
+  ['ביצים L 12','ביצים וקפואים',14.9,12.2,20],['שניצל קפוא','ביצים וקפואים',32.9,22.8,6],['גלידה אישית','ביצים וקפואים',7.9,3.8,30],['פיצה קפואה','ביצים וקפואים',24.9,15.2,null],
+];
+const SAMPLE_COST_MISSING = new Set(['בורקס גבינה','עוגיות שוקולד צ׳יפס','בננות לק״ג','פיצה קפואה','טחינה גולמית']);
+function buildSample(){
+  const R = rng(20261107);
+  const end = '2026-11-07', days = 42, start = addDays(end, -(days-1));
+  const weights = [9,6,4,6,7,3, 9,5,3,4,4, 7,8,3,4,4,3, 7,6,5,5,3,2, 5,4,4,3, 2,3,2,3,2,1, 1,2,2,1, 4,1,4,1];
+  const W = sum(weights);
+  const pick = () => { let x = R()*W; for(let i=0;i<weights.length;i++){ x -= weights[i]; if(x<=0) return i; } return 0; };
+  const hourW = {7:5,8:9,9:7,10:6,11:6,12:8,13:9,14:7,15:6,16:8,17:11,18:12,19:10,20:8,21:5,22:2};
+  const rows = []; let tx = 1000;
+  for(let i=0;i<days;i++){
+    const d = addDays(start, i), dw = dowOf(d);
+    if(dw === 6) continue; // closed on Saturday
+    const trend = 1 + i*0.004;
+    let base = dw === 5 ? 210 : (dw === 4 ? 175 : 145);
+    const n = Math.round(base * trend * (0.9 + R()*0.2));
+    const hours = Object.entries(hourW).filter(([h]) => dw !== 5 || +h <= 15);
+    const hw = sum(hours.map(h=>h[1]));
+    for(let k=0;k<n;k++){
+      let x = R()*hw, h = 7; for(const [hh,w] of hours){ x -= w; if(x<=0){ h = +hh; break; } }
+      const items = 1 + Math.floor(R()*R()*6); tx++;
+      const seen = new Map();
+      for(let j=0;j<items;j++){
+        let p = pick();
+        if(j>0 && seen.has(7) && R()<.35) p = 0; // lachmaniyot -> milk pairing
+        if(j>0 && seen.has(17) && R()<.3) p = 11; // bamba -> cola pairing
+        seen.set(p, (seen.get(p)||0) + 1);
+      }
+      for(const [p, q] of seen){
+        const P = SAMPLE_PRODUCTS[p];
+        const qty = P[0].includes('לק״ג') ? Math.round((0.5 + R()*1.5)*100)/100 : q;
+        rows.push({ d, h, t: 'T'+tx, p: P[0], c: P[1], q: qty, s: Math.round(qty*P[2]*100)/100 });
+      }
+    }
+  }
+  const catalog = {};
+  SAMPLE_PRODUCTS.forEach(P => { catalog[P[0]] = { c: P[1], cost: SAMPLE_COST_MISSING.has(P[0]) ? null : P[3], stock: P[4], lead: P[1]==='לחם ומאפים'||P[1]==='חלב ומוצריו' ? 1 : 3 }; });
+  return { rows, catalog, fixed: { electricity: 3200, arnona: 1850, bank: 1100, salary: 24000, loans: 4500, rent: 9000, other: 1200 } };
+}
+
+/* ---------- persistence: db capability, with browser storage as fallback ---------- */
+const LS_KEY = 'gibli-minimarket-v1';
+const Store = {
+  db: null, mode: 'none', catParts: 0,
+  async init(){
+    if(!window.claude || typeof window.claude.use !== 'function'){ this.mode = 'local'; return; }
+    try {
+      const db = await Promise.race([window.claude.use('db'), new Promise(r => setTimeout(()=>r(null), 10000))]);
+      if(db){ this.db = db; this.mode = 'db'; } else this.mode = 'local';
+    } catch(e){ this.mode = 'local'; }
+  },
+  local(){ try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null') || {reports:[], chunks:{}, catalog:{}, fixed:null, analyses:[]}; } catch(e){ return {reports:[], chunks:{}, catalog:{}, fixed:null, analyses:[]}; } },
+  writeLocal(o){ try { localStorage.setItem(LS_KEY, JSON.stringify(o)); return true; } catch(e){ toast('הדפדפן לא שמר את הנתונים (אין מקום או שהאחסון חסום)'); return false; } },
+  async loadAll(){
+    if(this.mode === 'db'){
+      const db = this.db;
+      const timeout = new Promise((_, rej) => setTimeout(()=>rej(new Error('timeout')), 15000));
+      const [reps, chunks, cat, fixed, an] = await Promise.race([Promise.all([
+        db.collection('reports').get(), db.collection('chunks').get(), db.collection('catalog').get(),
+        db.doc('shop/fixed').get(), db.collection('analyses').get()
+      ]), timeout]);
+      const chunkBy = {};
+      chunks.docs.forEach(d => { const v = d.data(); (chunkBy[v.reportId] ||= []).push(v); });
+      const reports = reps.docs.map(d => { const m = d.data(); return { ...m, rows: decodeChunks(chunkBy[m.id] || []) }; });
+      const catalog = {}; this.catParts = cat.size;
+      cat.docs.forEach(d => (d.data().list || []).forEach(([n, v]) => { catalog[n] = v; }));
+      return { reports, catalog, fixed: fixed.exists ? fixed.data() : null, analyses: an.docs.map(d=>d.data()) };
+    }
+    const o = this.local();
+    return { reports: o.reports.map(m => ({...m, rows: decodeChunks(o.chunks[m.id] || [])})), catalog: o.catalog || {}, fixed: o.fixed, analyses: o.analyses || [] };
+  },
+  async saveReport(rep){
+    const meta = reportMeta(rep), chunks = encodeChunks(rep);
+    if(this.mode === 'db'){
+      const old = rep._chunkCount || 0;
+      for(let i=0;i<chunks.length;i++) await this.db.doc('chunks/'+rep.id+'_'+i).set(chunks[i]);
+      for(let i=chunks.length;i<old;i++) await this.db.doc('chunks/'+rep.id+'_'+i).delete();
+      meta.chunkCount = chunks.length; rep._chunkCount = chunks.length;
+      await this.db.doc('reports/'+rep.id).set(meta);
+      return;
+    }
+    const o = this.local(); o.chunks[rep.id] = chunks;
+    o.reports = o.reports.filter(r => r.id !== rep.id).concat([meta]);
+    this.writeLocal(o);
+  },
+  async saveReportMeta(rep){
+    if(this.mode === 'db'){ await this.db.doc('reports/'+rep.id).set({...reportMeta(rep), chunkCount: rep._chunkCount || rep.chunkCount || 0}); return; }
+    const o = this.local(); o.reports = o.reports.map(r => r.id === rep.id ? reportMeta(rep) : r); this.writeLocal(o);
+  },
+  async deleteReport(rep){
+    if(this.mode === 'db'){
+      const n = rep._chunkCount || rep.chunkCount || 0;
+      for(let i=0;i<Math.max(n,1);i++) await this.db.doc('chunks/'+rep.id+'_'+i).delete();
+      await this.db.doc('reports/'+rep.id).delete(); return;
+    }
+    const o = this.local(); delete o.chunks[rep.id]; o.reports = o.reports.filter(r => r.id !== rep.id); this.writeLocal(o);
+  },
+  async saveCatalog(catalog){
+    if(this.mode === 'db'){
+      const names = Object.keys(catalog), size = 600, parts = Math.max(1, Math.ceil(names.length/size));
+      for(let i=0;i<parts;i++){ const list = names.slice(i*size,(i+1)*size).map(n => [n, catalog[n]]); await this.db.doc('catalog/p'+i).set({ list }); }
+      for(let i=parts;i<this.catParts;i++) await this.db.doc('catalog/p'+i).delete();
+      this.catParts = parts; return;
+    }
+    const o = this.local(); o.catalog = catalog; this.writeLocal(o);
+  },
+  async saveFixed(fixed){
+    if(this.mode === 'db'){ await this.db.doc('shop/fixed').set(fixed); return; }
+    const o = this.local(); o.fixed = fixed; this.writeLocal(o);
+  },
+  async saveAnalysis(a){
+    if(this.mode === 'db'){ await this.db.doc('analyses/'+a.id).set(a); return; }
+    const o = this.local(); o.analyses = (o.analyses||[]).filter(x=>x.id!==a.id).concat([a]); this.writeLocal(o);
+  },
+  async deleteAnalysis(a){
+    if(this.mode === 'db'){ await this.db.doc('analyses/'+a.id).delete(); return; }
+    const o = this.local(); o.analyses = (o.analyses||[]).filter(x=>x.id!==a.id); this.writeLocal(o);
+  }
+};
+function reportMeta(r){ return { id: r.id, name: r.name, createdAt: r.createdAt, from: r.from, to: r.to, rowCount: r.rows.length, active: r.active !== false, source: r.source || '' }; }
+function encodeChunks(rep){
+  const size = 2500, out = [];
+  for(let i=0;i<rep.rows.length;i+=size){
+    const part = rep.rows.slice(i, i+size), idx = new Map(), prods = [];
+    const rows = part.map(r => {
+      const key = r.p + '\u0001' + (r.c||'');
+      if(!idx.has(key)){ idx.set(key, prods.length); prods.push([r.p, r.c||'']); }
+      return [r.d, r.h, r.t||'', idx.get(key), r.q, r.s, r.n||0];
+    });
+    out.push({ reportId: rep.id, idx: out.length, prods, rows });
+  }
+  return out;
+}
+function decodeChunks(chunks){
+  const rows = [];
+  chunks.sort((a,b)=>a.idx-b.idx).forEach(ch => ch.rows.forEach(a => { const p = ch.prods[a[3]]; rows.push({ d:a[0], h:a[1], t:a[2], p:p[0], c:p[1], q:a[4], s:a[5], n:a[6] }); }));
+  return rows;
+}
+let catTimer = null, fixedTimer = null;
+function queueCatalogSave(){ if(S.sample) return; clearTimeout(catTimer); catTimer = setTimeout(()=>Store.saveCatalog(S.catalog).then(()=>setStatus()).catch(e=>toast('שמירת המחירון נכשלה: '+(e.message||e.code||''))), 900); }
+function queueFixedSave(){ if(S.sample) return; clearTimeout(fixedTimer); fixedTimer = setTimeout(()=>Store.saveFixed(S.fixed).catch(e=>toast('שמירת ההוצאות נכשלה')), 900); }
+
+function rebuildRows(){
+  S.rows = [];
+  S.reports.forEach(r => { if(r.active !== false) for(const x of r.rows) S.rows.push(x); });
+  // categories from catalog override empty category in rows
+  for(const r of S.rows){ if(!r.c && S.catalog[r.p]?.c) r.c = S.catalog[r.p].c; if(!r.c) r.c = 'ללא קטגוריה'; }
+}
+function dataExtent(rows = S.rows){
+  let a = null, b = null;
+  for(const r of rows){ if(!a || r.d < a) a = r.d; if(!b || r.d > b) b = r.d; }
+  return [a, b];
+}
+
+/* ---------- analytics ---------- */
+function filterRows(f = S.filter, rows = S.rows){
+  return rows.filter(r => (!f.from || r.d >= f.from) && (!f.to || r.d <= f.to) && (!f.cat || r.c === f.cat) && (!f.prod || r.p === f.prod));
+}
+function costOf(p){ const c = S.catalog[p]?.cost; return (c === null || c === undefined || c === '' || isNaN(c)) ? null : +c; }
+function analyze(rows, range){
+  const A = { sales:0, qty:0, lines: rows.length, byDate:{}, hourSales:Array(24).fill(0), hourTx:Array.from({length:24},()=>new Set()), dowHour: Array.from({length:7},()=>Array(24).fill(0)), dowSales:Array(7).fill(0),
+    byCat:{}, byProd:{}, coveredSales:0, cogs:0, uncoveredSales:0, approxTx:false, txTotals:new Map(), txItems:new Map(), extraTx:0, hasHour:false };
+  const txSet = new Set();
+  for(const r of rows){
+    A.sales += r.s; A.qty += r.q;
+    const dd = (A.byDate[r.d] ||= { s:0, tx:new Set(), extra:0 }); dd.s += r.s;
+    let key = null;
+    if(r.n){ A.extraTx += r.n; dd.extra += r.n; }
+    else { if(r.t) key = r.d + '|' + r.t; else { key = 'a|' + r.d + '|' + r.h; A.approxTx = true; } txSet.add(key); dd.tx.add(key); }
+    if(r.h >= 0 && r.h < 24){ A.hasHour = true; A.hourSales[r.h] += r.s; if(key) A.hourTx[r.h].add(key); A.dowHour[dowOf(r.d)][r.h] += r.s; }
+    A.dowSales[dowOf(r.d)] += r.s;
+    const c = (A.byCat[r.c] ||= { c:r.c, s:0, q:0, cogs:0, cov:0 }); c.s += r.s; c.q += r.q;
+    const p = (A.byProd[r.p] ||= { p:r.p, c:r.c, s:0, q:0, days:new Set(), tx:0, last:'' }); p.s += r.s; p.q += r.q; p.days.add(r.d); p.tx++; if(r.d > p.last) p.last = r.d;
+    const cost = costOf(r.p);
+    if(cost !== null){ A.coveredSales += r.s; A.cogs += cost*r.q; c.cogs += cost*r.q; c.cov += r.s; } else A.uncoveredSales += r.s;
+    if(r.t){ A.txTotals.set(key, (A.txTotals.get(key)||0) + r.s); let set = A.txItems.get(key); if(!set){ set = new Set(); A.txItems.set(key, set); } set.add(r.p); }
+  }
+  A.txns = txSet.size + A.extraTx;
+  A.avg = A.txns ? A.sales / A.txns : 0;
+  A.itemsPerTx = A.txItems.size ? sum([...A.txItems.values()].map(s=>s.size)) / A.txItems.size : null;
+  A.gp = A.coveredSales - A.cogs;
+  A.margin = A.coveredSales ? A.gp / A.coveredSales : null;
+  A.coverage = A.sales ? A.coveredSales / A.sales : 0;
+  A.gpEst = A.margin != null ? A.margin * A.sales : null;
+  const ext = dataExtent(rows);
+  const from = range?.from && ext[0] ? (range.from > ext[0] ? range.from : ext[0]) : ext[0];
+  const to = range?.to && ext[1] ? (range.to < ext[1] ? range.to : ext[1]) : ext[1];
+  A.from = from; A.to = to;
+  A.days = from && to ? dayDiff(from, to) + 1 : 0;
+  A.activeDays = Object.keys(A.byDate).length;
+  // products
+  A.products = Object.values(A.byProd).map(p => {
+    const cost = costOf(p.p);
+    const unitPrice = p.q ? p.s/p.q : 0;
+    const gp = cost !== null ? p.s - cost*p.q : null;
+    return { ...p, daysSold: p.days.size, cost, unitPrice, gp, margin: gp !== null && p.s ? gp/p.s : null, vel: A.activeDays ? p.q / A.activeDays : 0 };
+  });
+  A.cats = Object.values(A.byCat).map(c => ({ ...c, gp: c.cov - c.cogs, margin: c.cov ? (c.cov - c.cogs)/c.cov : null, coverage: c.s ? c.cov/c.s : 0 })).sort((a,b)=>b.s-a.s);
+  classify(A);
+  return A;
+}
+function classify(A){
+  const ps = [...A.products].sort((a,b)=>b.s-a.s);
+  let cum = 0;
+  ps.forEach(p => { cum += p.s; const share = A.sales ? cum / A.sales : 1; p.abc = share <= 0.8 ? 'A' : share <= 0.95 ? 'B' : 'C'; });
+  const vels = A.products.map(p => p.vel);
+  const hi = quant(vels, 0.8), lo = quant(vels, 0.25);
+  A.products.forEach(p => {
+    const dayShare = A.activeDays ? p.daysSold / A.activeDays : 0;
+    p.speed = (p.vel >= hi && dayShare >= .6) ? 'fast' : (p.vel <= lo || dayShare < .25) ? 'slow' : 'mid';
+  });
+  // catalog items that never sold in the period
+  A.unsold = Object.keys(S.catalog).filter(n => !A.byProd[n] && (!S.filter.cat || S.catalog[n].c === S.filter.cat) && !S.filter.prod);
+}
+function basketPairs(A, maxProducts = 80){
+  const top = new Set([...A.products].sort((a,b)=>b.tx-a.tx).slice(0, maxProducts).map(p=>p.p));
+  const pairs = new Map(), single = new Map();
+  let n = 0;
+  for(const set of A.txItems.values()){
+    const items = [...set].filter(p => top.has(p)); n++;
+    items.forEach(p => single.set(p, (single.get(p)||0)+1));
+    if(items.length < 2 || items.length > 12) continue;
+    items.sort();
+    for(let i=0;i<items.length;i++) for(let j=i+1;j<items.length;j++){ const k = items[i]+'\u0001'+items[j]; pairs.set(k, (pairs.get(k)||0)+1); }
+  }
+  return [...pairs.entries()].map(([k, c]) => { const [a,b] = k.split('\u0001'); const ea = (single.get(a)||1)/n, eb = (single.get(b)||1)/n; return { a, b, c, lift: (c/n)/(ea*eb), confA: c/(single.get(a)||1), confB: c/(single.get(b)||1) }; })
+    .filter(x => x.c >= 3 && x.lift > 1.15).sort((x,y)=> (y.c*Math.log(y.lift)) - (x.c*Math.log(x.lift))).slice(0, 8);
+}
+
+/* ---------- charts (hand-drawn SVG, one scale per chart) ---------- */
+const tipEl = $('#tip');
+function showTip(e, html){ tipEl.innerHTML = html; tipEl.hidden = false; const pad = 14; let x = e.clientX + pad, y = e.clientY + pad; const r = tipEl.getBoundingClientRect(); if(x + r.width > innerWidth - 8) x = e.clientX - r.width - pad; if(y + r.height > innerHeight - 8) y = e.clientY - r.height - pad; tipEl.style.left = x+'px'; tipEl.style.top = y+'px'; }
+function hideTip(){ tipEl.hidden = true; }
+function niceMax(v){ if(v <= 0) return 1; const e = Math.pow(10, Math.floor(Math.log10(v))); const f = v/e; return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*e; }
+function shortMoney(v){ return v >= 1e6 ? '₪'+nf1.format(v/1e6)+'M' : v >= 1e4 ? '₪'+nf0.format(v/1e3)+'K' : v >= 1000 ? '₪'+nf1.format(v/1e3)+'K' : '₪'+nf0.format(v); }
+/** bars: [{label, v, tip, sub}] ; series b optional for compare: [{v}] */
+function barChart(el, bars, opts = {}){
+  const W = Math.max(280, el.clientWidth || 600), H = opts.height || 220, m = { t: 12, r: 8, b: 26, l: 46 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const max = niceMax(Math.max(...bars.map(b=>b.v), 0));
+  const n = bars.length || 1, step = iw / n, bw = Math.max(2, Math.min(36, step - 2));
+  const ticks = [0, .25, .5, .75, 1].map(f => f*max);
+  const labEvery = Math.ceil(n / Math.max(1, Math.floor(iw / 46)));
+  let s = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria||'גרף')}"><g class="grid">`;
+  ticks.forEach(t => { const y = m.t + ih - (t/max)*ih; s += `<line x1="${m.l}" x2="${W-m.r}" y1="${y}" y2="${y}"/><text x="${m.l-6}" y="${y+4}" text-anchor="end">${shortMoney(t)}</text>`; });
+  s += `</g>`;
+  bars.forEach((b, i) => {
+    const h = Math.max(b.v > 0 ? 1.5 : 0, (b.v/max)*ih), x = m.l + i*step + (step-bw)/2, y = m.t + ih - h;
+    const r = Math.min(4, bw/2, h);
+    const fill = b.color || 'var(--series-a)';
+    s += `<path d="M${x},${m.t+ih} V${y+r} Q${x},${y} ${x+r},${y} H${x+bw-r} Q${x+bw},${y} ${x+bw},${y+r} V${m.t+ih} Z" fill="${fill}" opacity="${b.dim?0.45:1}"/>`;
+    s += `<rect x="${m.l+i*step}" y="${m.t}" width="${step}" height="${ih}" fill="transparent" data-i="${i}"/>`;
+    if(i % labEvery === 0) s += `<text x="${x+bw/2}" y="${H-8}" text-anchor="middle">${esc(b.label)}</text>`;
+  });
+  s += `<line x1="${m.l}" x2="${W-m.r}" y1="${m.t+ih}" y2="${m.t+ih}" stroke="var(--muted)" stroke-width="1"/></svg>`;
+  el.innerHTML = s;
+  el.querySelectorAll('rect[data-i]').forEach(r => { r.addEventListener('mousemove', e => showTip(e, bars[+r.dataset.i].tip)); r.addEventListener('mouseleave', hideTip); });
+}
+function lineChart(el, series, labels, opts = {}){
+  const W = Math.max(280, el.clientWidth || 600), H = opts.height || 220, m = { t: 12, r: 10, b: 26, l: 46 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const n = Math.max(...series.map(s=>s.values.length), 1);
+  const max = niceMax(Math.max(0, ...series.flatMap(s=>s.values)));
+  const X = i => m.l + (n === 1 ? iw/2 : (i/(n-1))*iw), Y = v => m.t + ih - (v/max)*ih;
+  let s = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria||'גרף קווי')}"><g class="grid">`;
+  [0,.25,.5,.75,1].forEach(f => { const y = Y(f*max); s += `<line x1="${m.l}" x2="${W-m.r}" y1="${y}" y2="${y}"/><text x="${m.l-6}" y="${y+4}" text-anchor="end">${shortMoney(f*max)}</text>`; });
+  s += `</g>`;
+  const labEvery = Math.ceil(n / Math.max(1, Math.floor(iw / 50)));
+  for(let i=0;i<n;i+=labEvery) s += `<text x="${X(i)}" y="${H-8}" text-anchor="middle">${esc(labels[i] ?? '')}</text>`;
+  series.forEach(se => {
+    const pts = se.values.map((v,i)=>`${X(i)},${Y(v)}`).join(' ');
+    s += `<polyline points="${pts}" fill="none" stroke="${se.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const li = se.values.length-1; if(li>=0) s += `<circle cx="${X(li)}" cy="${Y(se.values[li])}" r="4" fill="${se.color}" stroke="var(--surface)" stroke-width="2"/>`;
+  });
+  s += `<line class="xh" x1="0" x2="0" y1="${m.t}" y2="${m.t+ih}" stroke="var(--muted)" stroke-dasharray="3 3" visibility="hidden"/>`;
+  s += `<rect x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent" class="hit"/></svg>`;
+  el.innerHTML = s;
+  const hit = el.querySelector('.hit'), xh = el.querySelector('.xh'), svg = el.querySelector('svg');
+  hit.addEventListener('mousemove', e => {
+    const bx = svg.getBoundingClientRect(); const x = (e.clientX - bx.left) * (W / bx.width);
+    const i = Math.max(0, Math.min(n-1, Math.round(((x - m.l)/iw)*(n-1))));
+    xh.setAttribute('x1', X(i)); xh.setAttribute('x2', X(i)); xh.setAttribute('visibility','visible');
+    showTip(e, opts.tip ? opts.tip(i) : series.map(se => `${esc(se.name)}: ${money(se.values[i]||0)}`).join('<br>'));
+  });
+  hit.addEventListener('mouseleave', () => { xh.setAttribute('visibility','hidden'); hideTip(); });
+}
+function hbars(items, fmt = money, max){
+  const mx = max ?? Math.max(...items.map(i=>i.v), 1);
+  return `<div class="hbars">${items.map(i => `<div class="hbar" title="${esc(i.title || '')}"><span class="name">${esc(i.label)}</span><span class="track"><span class="fill" style="display:block;width:${Math.max(0.5, (i.v/mx)*100)}%;${i.color?'background:'+i.color:''}"></span></span><span class="val">${fmt(i.v)}</span></div>`).join('')}</div>`;
+}
+function heatmap(A){
+  const hours = []; for(let h=0;h<24;h++) if(A.hourSales[h] > 0) hours.push(h);
+  if(!hours.length) return `<p class="muted small">בדוח אין שעות, לכן אין מפת חום. הוסף עמודת שעה כדי לראות אותה.</p>`;
+  const dayCount = Array(7).fill(0); Object.keys(A.byDate).forEach(d => dayCount[dowOf(d)]++);
+  let max = 0; const val = (d,h) => dayCount[d] ? A.dowHour[d][h]/dayCount[d] : 0;
+  for(let d=0;d<7;d++) for(const h of hours) max = Math.max(max, val(d,h));
+  let s = `<div class="heat" style="--cols:${hours.length}" role="img" aria-label="מכירות ממוצעות לפי יום בשבוע ושעה">`;
+  s += `<div class="row"><span></span>${hours.map(h=>`<span class="lab">${h}</span>`).join('')}</div>`;
+  for(let d=0;d<7;d++){
+    if(!dayCount[d]) continue;
+    s += `<div class="row"><span class="lab">${DOW[d]}</span>`;
+    for(const h of hours){ const v = val(d,h), a = max ? v/max : 0; s += `<span class="cell" data-tip="יום ${DOW_FULL[d]}, ${h}:00–${h+1}:00<br>ממוצע ${money(v)} ליום" style="background:color-mix(in srgb, var(--heat-1) ${Math.round(a*100)}%, var(--heat-0))"></span>`; }
+    s += `</div>`;
+  }
+  return s + `</div><div class="legend"><span>חלש</span><span style="display:inline-block;width:120px;height:10px;border-radius:3px;background:linear-gradient(to left, var(--heat-1), var(--heat-0))"></span><span>חזק</span><span>· ממוצע מכירות ליום, לפי יום בשבוע ושעה</span></div>`;
+}
+function wireTips(root){ root.querySelectorAll('[data-tip]').forEach(el => { el.addEventListener('mousemove', e => showTip(e, el.dataset.tip)); el.addEventListener('mouseleave', hideTip); }); }
+
+/* ---------- exercises ---------- */
+function exercise(id, ex){
+  if(!ex) return '';
+  const key = id + ':' + ex.q;
+  const ans = S.answered[key];
+  return `<section class="exercise" data-ex="${esc(key)}">
+    <span class="eyebrow">תרגיל החלטה עסקית</span>
+    <h3>${esc(ex.title)}</h3>
+    <p class="q">${ex.q}</p>
+    <div class="opts">${ex.options.map((o,i) => `<button type="button" class="opt ${ans!=null ? (o.ok ? 'right' : (ans===i ? 'wrong' : '')) : ''}" data-i="${i}">${esc(o.t)}</button>`).join('')}</div>
+    ${ans!=null ? `<div class="sol"><b>${ex.options[ans].ok ? 'נכון.' : 'לא בדיוק.'}</b> ${ex.explain}</div>` : `<p class="small muted">בחר תשובה כדי לראות את הפתרון המוסבר.</p>`}
+  </section>`;
+}
+function wireExercises(root){
+  root.querySelectorAll('.exercise').forEach(sec => sec.querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => { S.answered[sec.dataset.ex] = +b.dataset.i; render(); })));
+}
+function shuffleOpts(opts, seed){ const r = rng(seed); return opts.map(o=>[r(),o]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]); }
+
+/* ---------- filters ---------- */
+function categories(){ return [...new Set(S.rows.map(r=>r.c))].sort((a,b)=>a.localeCompare(b,'he')); }
+function productsList(cat){ return [...new Set(S.rows.filter(r=>!cat || r.c===cat).map(r=>r.p))].sort((a,b)=>a.localeCompare(b,'he')); }
+function renderFilters(){
+  const el = $('#filters');
+  if(S.tab === 'data' || S.tab === 'compare'){ el.innerHTML = S.tab === 'compare' ? `<p class="small muted">בהשוואה בוחרים שתי תקופות בתוך המסך. סינון לפי קטגוריה ומוצר חל גם כאן.</p>` + catProdFields() : ''; wireFilterFields(); return; }
+  const [a, b] = dataExtent();
+  el.innerHTML = `
+    <div class="field"><label for="fFrom">מתאריך</label><input type="date" id="fFrom" value="${S.filter.from}" min="${a||''}" max="${b||''}"></div>
+    <div class="field"><label for="fTo">עד תאריך</label><input type="date" id="fTo" value="${S.filter.to}" min="${a||''}" max="${b||''}"></div>
+    <div class="field"><label>טווח מהיר</label><div class="quick">
+      ${[['7','7 ימים'],['14','14 ימים'],['30','30 ימים'],['all','הכול']].map(([k,l]) => `<button type="button" class="chip ${quickActive(k)?'on':''}" data-q="${k}">${l}</button>`).join('')}
+    </div></div>
+    ${catProdFields()}`;
+  $('#fFrom').addEventListener('change', e => { S.filter.from = e.target.value; render(); });
+  $('#fTo').addEventListener('change', e => { S.filter.to = e.target.value; render(); });
+  el.querySelectorAll('[data-q]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.q; if(k==='all'){ S.filter.from=''; S.filter.to=''; } else { S.filter.to = b2; S.filter.from = addDays(b2, -(+k-1)); } render(); }));
+  const b2 = b;
+  wireFilterFields();
+}
+function quickActive(k){ const [,b] = dataExtent(); if(k==='all') return !S.filter.from && !S.filter.to; return S.filter.to === b && S.filter.from === addDays(b||'2000-01-01', -(+k-1)); }
+function catProdFields(){
+  const cats = categories(), prods = productsList(S.filter.cat);
+  return `<div class="field"><label for="fCat">קטגוריה</label><select id="fCat"><option value="">כל הקטגוריות</option>${cats.map(c=>`<option ${c===S.filter.cat?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
+    <div class="field"><label for="fProd">מוצר</label><select id="fProd"><option value="">כל המוצרים</option>${prods.map(p=>`<option ${p===S.filter.prod?'selected':''}>${esc(p)}</option>`).join('')}</select></div>
+    ${(S.filter.cat||S.filter.prod||S.filter.from||S.filter.to) ? `<button type="button" class="btn small ghost" id="fClear">נקה סינון</button>` : ''}`;
+}
+function wireFilterFields(){
+  $('#fCat')?.addEventListener('change', e => { S.filter.cat = e.target.value; if(S.filter.prod && !productsList(S.filter.cat).includes(S.filter.prod)) S.filter.prod=''; render(); });
+  $('#fProd')?.addEventListener('change', e => { S.filter.prod = e.target.value; render(); });
+  $('#fClear')?.addEventListener('click', () => { S.filter = { from:'', to:'', cat:'', prod:'' }; render(); });
+}
+function filterLabel(f = S.filter){
+  const parts = [];
+  parts.push(f.from || f.to ? `${heDate(f.from) } – ${heDate(f.to)}` : 'כל התקופה');
+  if(f.cat) parts.push('קטגוריה: ' + f.cat);
+  if(f.prod) parts.push('מוצר: ' + f.prod);
+  return parts.join(' · ');
+}
+
+/* ---------- shared bits ---------- */
+function sampleBanner(){
+  if(!S.sample) return '';
+  return `<div class="banner info"><p><b>אלה נתוני דוגמה</b> של 6 שבועות במינימרקט, כדי שתראה איך המערכת עובדת. הנתונים שלך יחליפו אותם ברגע שתעלה דוח ראשון מהקופה.</p><a class="btn small primary" href="#data">העלה דוח מהקופה</a></div>`;
+}
+function missingBanner(A){
+  const miss = A.products.filter(p => p.cost === null);
+  if(!miss.length) return '';
+  return `<div class="banner"><p><b>${miss.length} מוצרים בלי מחיר עלות</b> — ${pct(1-A.coverage,0)} מהמכירות. הם לא נכללים ברווח הגולמי, והרווח מחושב רק על ${pct(A.coverage,0)} מהמכירות שיש להן עלות.</p><a class="btn small" href="#products">השלם מחירי עלות</a></div>`;
+}
+function kpiTiles(A){
+  return `<div class="kpis">
+    <div class="kpi"><span class="l">מכירות</span><span class="v">${money(A.sales)}</span><span class="s">${A.days} ימים · ${money(A.activeDays ? A.sales/A.activeDays : 0)} ליום פעילות</span></div>
+    <div class="kpi"><span class="l">מספר עסקאות</span><span class="v">${nf0.format(A.txns)}</span><span class="s">${A.approxTx ? 'חלק מהספירה משוערת' : nf1.format(A.activeDays ? A.txns/A.activeDays : 0) + ' ליום'}</span></div>
+    <div class="kpi"><span class="l">ממוצע עסקה</span><span class="v">${money2(A.avg)}</span><span class="s">${A.itemsPerTx ? nf1.format(A.itemsPerTx) + ' מוצרים שונים בעסקה' : '&nbsp;'}</span></div>
+    <div class="kpi"><span class="l">רווח גולמי (נמדד)</span><span class="v">${money(A.gp)}</span><span class="s">על ${money(A.coveredSales)} מכירות עם עלות</span></div>
+    <div class="kpi"><span class="l">שיעור רווח גולמי</span><span class="v">${pct(A.margin)}</span><span class="s">אומדן לכל המכירות: ${A.gpEst!=null ? money(A.gpEst) : '—'}</span></div>
+    <div class="kpi ${A.coverage < .97 ? 'alert' : ''}"><span class="l">מוצרים בלי עלות</span><span class="v">${A.products.filter(p=>p.cost===null).length}</span><span class="s">${pct(1-A.coverage,0)} מהמכירות לא נכנסות לרווח</span></div>
+  </div>`;
+}
+function speedPill(p){ return p.speed === 'fast' ? '<span class="pill good">מהיר</span>' : p.speed === 'slow' ? '<span class="pill warn">איטי</span>' : '<span class="pill neutral">בינוני</span>'; }
+
+/* ---------- view: dashboard ---------- */
+function viewDashboard(){
+  const rows = filterRows(), A = analyze(rows, S.filter);
+  if(!rows.length) return emptyView();
+  const dates = []; if(A.from) for(let d=A.from; d<=A.to; d=addDays(d,1)) dates.push(d);
+  const peak = A.hourSales.map((v,h)=>({h,v})).filter(x=>x.v>0);
+  const topP = [...A.products].sort((a,b)=>b.s-a.s).slice(0,10);
+  const dowAvg = DOW.map((_,d) => { const n = Object.keys(A.byDate).filter(x=>dowOf(x)===d).length; return n ? A.dowSales[d]/n : 0; });
+  const bestDow = dowAvg.indexOf(Math.max(...dowAvg));
+  return `${sampleBanner()}${missingBanner(A)}
+  ${kpiTiles(A)}
+  <section class="panel">
+    <div class="panel-head"><h2>מכירות לפי יום</h2><p>${filterLabel()}</p></div>
+    <div class="chart" id="chDaily"></div>
+    <p class="explain" style="margin-top:8px">כל עמודה היא יום. ימים בלי מכירות (למשל שבת) מופיעים ריקים. היום החזק בשבוע בממוצע: <b>${DOW_FULL[bestDow]}</b> (${money(dowAvg[bestDow])}).</p>
+  </section>
+  <div class="grid2">
+    <section class="panel">
+      <div class="panel-head"><h2>מכירות לפי שעה</h2><p>ממוצע ליום פעילות</p></div>
+      ${A.hasHour ? `<div class="chart" id="chHour"></div>` : `<p class="muted small">אין שעות בדוח.</p>`}
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>מתי החנות עמוסה</h2><p>יום בשבוע × שעה</p></div>
+      ${heatmap(A)}
+    </section>
+  </div>
+  <div class="grid2">
+    <section class="panel">
+      <div class="panel-head"><h2>מכירות לפי קטגוריה</h2><p>שיעור רווח לפי עלויות ידועות</p></div>
+      ${hbars(A.cats.slice(0,10).map(c => ({ label: c.c, v: c.s, title: `רווח גולמי ${c.margin!=null?pct(c.margin):'לא ידוע'}` })))}
+      <div class="tbl-wrap" style="margin-top:12px"><table><thead><tr><th>קטגוריה</th><th class="n">מכירות</th><th class="n">נתח</th><th class="n">רווח גולמי</th><th class="n">% רווח</th></tr></thead><tbody>
+        ${A.cats.map(c => `<tr><td>${esc(c.c)}</td><td class="n">${money(c.s)}</td><td class="n">${pct(c.s/A.sales)}</td><td class="n">${c.cov ? money(c.gp) : '—'}</td><td class="n">${c.margin!=null ? pct(c.margin) : '<span class="pill warn">חסרה עלות</span>'}${c.cov && c.coverage < .95 ? ' <span class="small muted">(על '+pct(c.coverage,0)+')</span>' : ''}</td></tr>`).join('')}
+      </tbody></table></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>10 המוצרים המובילים</h2><a class="btn small ghost" href="#products">כל המוצרים</a></div>
+      <div class="tbl-wrap"><table><thead><tr><th>מוצר</th><th class="n">כמות</th><th class="n">מכירות</th><th class="n">מחיר מכירה</th><th class="n">עלות</th><th class="n">רווח גולמי</th></tr></thead><tbody>
+        ${topP.map(p => `<tr><td>${esc(p.p)}</td><td class="n">${nf1.format(p.q)}</td><td class="n">${money(p.s)}</td><td class="n">${money2(p.unitPrice)}</td><td class="n">${p.cost!=null ? money2(p.cost) : '<span class="pill warn">חסר</span>'}</td><td class="n">${p.gp!=null ? money(p.gp) : '—'}</td></tr>`).join('')}
+      </tbody></table></div>
+    </section>
+  </div>
+  ${exercise('dash', exDashboard(A))}`;
+}
+function afterDashboard(){
+  const rows = filterRows(), A = analyze(rows, S.filter);
+  const el = $('#chDaily'); if(el && A.from){
+    const bars = []; for(let d=A.from; d<=A.to; d=addDays(d,1)){ const v = A.byDate[d]; const tx = v ? v.tx.size + v.extra : 0; bars.push({ label: heDate(d).slice(0,-3), v: v ? v.s : 0, tip: `<b>יום ${DOW_FULL[dowOf(d)]} ${heDate(d)}</b><br>מכירות ${money(v?v.s:0)}<br>עסקאות ${nf0.format(tx)}${tx ? '<br>ממוצע '+money2((v?v.s:0)/tx) : ''}` }); }
+    barChart(el, bars, { aria: 'מכירות לפי יום' });
+  }
+  const eh = $('#chHour'); if(eh){
+    const hs = []; for(let h=0;h<24;h++) if(A.hourSales[h]>0) hs.push(h);
+    const lo = Math.min(...hs), hi = Math.max(...hs), bars = [];
+    for(let h=lo; h<=hi; h++){ const s = A.hourSales[h]/(A.activeDays||1), tx = A.hourTx[h].size/(A.activeDays||1); bars.push({ label: h+':00', v: s, tip: `<b>${h}:00–${h+1}:00</b><br>ממוצע ${money(s)} ליום<br>${nf1.format(tx)} עסקאות ליום` }); }
+    barChart(eh, bars, { aria: 'מכירות לפי שעה' });
+  }
+}
+function exDashboard(A){
+  if(!A.hasHour) return null;
+  const hs = A.hourSales.map((v,h)=>({h, v: v/(A.activeDays||1), tx: A.hourTx[h].size/(A.activeDays||1)})).filter(x=>x.v>0);
+  if(hs.length < 4) return null;
+  const peak = hs.reduce((a,b)=>b.tx>a.tx?b:a), low = hs.reduce((a,b)=>b.tx<a.tx?b:a);
+  const opts = [
+    { t: `בשעת השיא ${peak.h}:00, כדי לקצר תורים ולא לאבד לקוחות`, ok: true },
+    { t: `בשעה השקטה ${low.h}:00, כי שם יש זמן לסדר מדפים ולמכור יותר`, ok: false },
+    { t: `לחלק חצי שעה פה וחצי שעה שם`, ok: false },
+  ];
+  return { title: 'איפה לשבץ שעת עובד נוספת?', q: `יש לך תקציב לשעת עובד נוספת אחת ביום (כ־₪45). בשעה ${peak.h}:00 יש בממוצע <b>${nf1.format(peak.tx)} עסקאות</b> (${money(peak.v)}), ובשעה ${low.h}:00 רק <b>${nf1.format(low.tx)}</b> (${money(low.v)}). איפה הכי כדאי לשבץ אותה?`,
+    options: shuffleOpts(opts, peak.h*31+low.h), explain: `בשעת השיא עובר לקוח כל ${nf1.format(60/Math.max(peak.tx,1))} דקות בממוצע, וכל לקוח שמוותר בגלל תור הוא הפסד של כ־${money2(A.avg)}. מספיק שהעובד הנוסף ימנע עזיבה של ${Math.ceil(45/Math.max(A.avg*(A.margin||0.25),1))} לקוחות כדי שהשעה תחזיר את עצמה ברווח הגולמי (${pct(A.margin||0.25,0)}). סידור מדפים עדיף לעשות בשעה השקטה בידי העובד הקיים.` };
+}
+
+/* ---------- view: products ---------- */
+function viewProducts(){
+  const rows = filterRows(), A = analyze(rows, S.filter);
+  if(!rows.length) return emptyView();
+  const miss = A.products.filter(p => p.cost === null).sort((a,b)=>b.s-a.s);
+  const {k, dir} = S.sort.products;
+  const list = [...A.products].sort((a,b) => { const x = a[k], y = b[k]; if(x==null && y==null) return 0; if(x==null) return 1; if(y==null) return -1; return typeof x === 'string' ? dir*x.localeCompare(y,'he') : dir*(x-y); });
+  const fast = A.products.filter(p=>p.speed==='fast').sort((a,b)=>b.vel-a.vel), slow = A.products.filter(p=>p.speed==='slow').sort((a,b)=>a.vel-b.vel);
+  const th = (key, label, n) => `<th class="sort ${n?'n':''}" data-k="${key}">${label}${k===key ? (dir<0?' ▼':' ▲') : ''}</th>`;
+  return `${sampleBanner()}
+  <section class="panel">
+    <div class="panel-head"><h2>מוצרים בלי מחיר עלות</h2><p>${miss.length ? `${miss.length} מוצרים · ${money(A.uncoveredSales)} מכירות שלא נכנסות לרווח` : 'לכל המוצרים יש מחיר עלות'}</p></div>
+    ${miss.length ? `<p class="explain">מוצרים אלה מופיעים בנפרד ולא נספרים ברווח הגולמי, כדי לא לנפח או להקטין אותו בטעות. הזן עלות ליחידה והיא תישמר במחירון ותשמש מעכשיו בכל החישובים.</p>
+    <div class="tbl-wrap scroll-y" style="margin-top:10px"><table><thead><tr><th>מוצר</th><th>קטגוריה</th><th class="n">מכירות</th><th class="n">מחיר מכירה ממוצע</th><th class="n">עלות ליחידה</th></tr></thead><tbody>
+      ${miss.map(p => `<tr><td>${esc(p.p)}</td><td>${esc(p.c)}</td><td class="n">${money(p.s)}</td><td class="n">${money2(p.unitPrice)}</td><td class="n"><input class="cost missing" type="number" step="0.01" min="0" inputmode="decimal" data-cost="${esc(p.p)}" aria-label="עלות עבור ${esc(p.p)}" placeholder="₪"></td></tr>`).join('')}
+    </tbody></table></div>` : `<p class="pill good">הרווח הגולמי מחושב על 100% מהמכירות</p>`}
+  </section>
+  <div class="grid2">
+    <section class="panel">
+      <div class="panel-head"><h2>מוצרים מהירים</h2><p>נמכרים הרבה וכמעט כל יום</p></div>
+      ${fast.length ? hbars(fast.slice(0,8).map(p=>({label:p.p, v:p.vel})), v => nf1.format(v)+' ליום') : '<p class="muted">אין מספיק נתונים.</p>'}
+      <p class="explain" style="margin-top:10px">אסור שייגמרו. כדאי להחזיק מלאי ביטחון ולמקם אותם בעומק החנות, כך שהלקוח עובר ליד מוצרים אחרים בדרך.</p>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>מוצרים איטיים</h2><p>נמכרים מעט או רק בחלק מהימים</p></div>
+      ${slow.length ? hbars(slow.slice(0,8).map(p=>({label:p.p, v:p.vel, color:'var(--warn)'})), v => nf1.format(v)+' ליום') : '<p class="muted">אין מוצרים איטיים בולטים.</p>'}
+      ${A.unsold.length ? `<p class="small" style="margin-top:8px"><span class="pill bad">לא נמכרו בכלל</span> ${A.unsold.slice(0,8).map(esc).join(', ')}${A.unsold.length>8?' ועוד '+(A.unsold.length-8):''}</p>` : ''}
+      <p class="explain" style="margin-top:10px">כסף שתקוע על המדף. שקול מבצע, הקטנת הזמנה, או החלפה במוצר אחר.</p>
+    </section>
+  </div>
+  <section class="panel">
+    <div class="panel-head"><h2>כל המוצרים: מכירה, עלות ורווח</h2><p>לחץ על כותרת כדי למיין · אפשר לעדכן עלות ומלאי ישירות בטבלה</p></div>
+    <div class="tbl-wrap scroll-y"><table id="prodTable"><thead><tr>
+      ${th('p','מוצר')}${th('c','קטגוריה')}${th('q','כמות',1)}${th('s','מכירות',1)}${th('unitPrice','מחיר מכירה',1)}<th class="n">עלות ליחידה</th>${th('gp','רווח גולמי',1)}${th('margin','% רווח',1)}${th('vel','ליום',1)}<th>קצב</th><th>ABC</th><th class="n">מלאי</th>
+    </tr></thead><tbody>
+      ${list.map(p => `<tr><td>${esc(p.p)}</td><td>${esc(p.c)}</td><td class="n">${nf1.format(p.q)}</td><td class="n">${money(p.s)}</td><td class="n">${money2(p.unitPrice)}</td>
+        <td class="n"><input class="cost ${p.cost==null?'missing':''}" type="number" step="0.01" min="0" inputmode="decimal" data-cost="${esc(p.p)}" value="${p.cost ?? ''}" aria-label="עלות עבור ${esc(p.p)}" placeholder="חסר"></td>
+        <td class="n">${p.gp!=null ? money(p.gp) : '—'}</td><td class="n">${p.margin!=null ? (p.margin<0 ? `<span class="down">${pct(p.margin)}</span>` : pct(p.margin)) : '—'}</td><td class="n">${nf1.format(p.vel)}</td><td>${speedPill(p)}</td><td>${p.abc}</td>
+        <td class="n"><input class="cost" type="number" step="1" min="0" data-stock="${esc(p.p)}" value="${S.catalog[p.p]?.stock ?? ''}" aria-label="מלאי עבור ${esc(p.p)}" placeholder="—"></td></tr>`).join('')}
+    </tbody></table></div>
+    <p class="explain" style="margin-top:10px"><b>ABC</b>: מוצרי A מביאים 80% מהמכירות, B עוד 15%, C את ה־5% האחרונים. <b>% רווח</b> = (מחיר מכירה − עלות) ÷ מחיר מכירה. מוצר עם % רווח שלילי נמכר מתחת לעלות.</p>
+  </section>
+  ${exercise('prod', exProducts(A))}`;
+}
+function afterProducts(){
+  const root = $('#view');
+  root.querySelectorAll('th.sort').forEach(th => th.addEventListener('click', () => { const s = S.sort.products; if(s.k === th.dataset.k) s.dir *= -1; else { s.k = th.dataset.k; s.dir = th.dataset.k==='p'||th.dataset.k==='c' ? 1 : -1; } render(); }));
+  root.querySelectorAll('input[data-cost]').forEach(inp => inp.addEventListener('change', () => {
+    const p = inp.dataset.cost, v = inp.value === '' ? null : Math.max(0, +inp.value);
+    (S.catalog[p] ||= { c: S.rows.find(r=>r.p===p)?.c || '' }).cost = v; queueCatalogSave(); render(); toast(v==null ? 'העלות נמחקה' : 'העלות נשמרה'); }));
+  root.querySelectorAll('input[data-stock]').forEach(inp => inp.addEventListener('change', () => {
+    const p = inp.dataset.stock; (S.catalog[p] ||= { c: S.rows.find(r=>r.p===p)?.c || '', cost: null }).stock = inp.value === '' ? null : +inp.value; queueCatalogSave(); }));
+}
+function exProducts(A){
+  const withCost = A.products.filter(p => p.gp != null && p.q > 0);
+  if(withCost.length < 4) return null;
+  const byQty = [...withCost].sort((a,b)=>b.q-a.q)[0];
+  const byGp = [...withCost].filter(p=>p.p!==byQty.p).sort((a,b)=>(b.gp/b.q)-(a.gp/a.q))[0];
+  if(!byGp) return null;
+  const gpA = byQty.gp, gpB = byGp.gp;
+  const winner = gpA >= gpB ? byQty : byGp;
+  const perA = byQty.gp/byQty.q, perB = byGp.gp/byGp.q;
+  const opts = [
+    { t: `${byQty.p}, כי הוא נמכר הכי הרבה יחידות`, ok: winner === byQty },
+    { t: `${byGp.p}, כי הרווח על כל יחידה גבוה יותר`, ok: winner === byGp },
+    { t: 'אין הבדל, לשניהם אותה תרומה לרווח', ok: false },
+  ];
+  return { title: 'למי לתת את המדף הטוב?', q: `<b>${esc(byQty.p)}</b> נמכר ב־${nf0.format(byQty.q)} יחידות ומרוויח ${money2(perA)} ליחידה. <b>${esc(byGp.p)}</b> נמכר ב־${nf0.format(byGp.q)} יחידות ומרוויח ${money2(perB)} ליחידה. התפנה מקום בגובה העיניים ליד הקופה. איזה מוצר הביא יותר רווח גולמי בתקופה?`,
+    options: opts, explain: `מכפילים כמות ברווח ליחידה: ${esc(byQty.p)} = ${nf0.format(byQty.q)} × ${money2(perA)} = <b>${money(gpA)}</b>; ${esc(byGp.p)} = ${nf0.format(byGp.q)} × ${money2(perB)} = <b>${money(gpB)}</b>. ${winner===byQty ? 'כמות גבוהה ניצחה כאן את הרווח ליחידה.' : 'הרווח ליחידה ניצח כאן את הכמות.'} מיקום טוב מגדיל מכירות, ולכן כדאי לתת אותו למוצר שכל יחידה נוספת שלו שווה יותר: ${esc(perA>=perB?byQty.p:byGp.p)}, בתנאי שלקוחות קונים אותו גם מדחף רגעי.` };
+}
+
+/* ---------- view: compare ---------- */
+function defaultCompare(){
+  const [, b] = dataExtent(); if(!b) return;
+  if(!S.cmp.aTo){ S.cmp.aTo = b; S.cmp.aFrom = addDays(b, -6); S.cmp.bTo = addDays(b, -7); S.cmp.bFrom = addDays(b, -13); }
+}
+function viewCompare(){
+  if(!S.rows.length) return emptyView();
+  defaultCompare();
+  const c = S.cmp;
+  const fa = { from: c.aFrom, to: c.aTo, cat: S.filter.cat, prod: S.filter.prod }, fb = { from: c.bFrom, to: c.bTo, cat: S.filter.cat, prod: S.filter.prod };
+  const A = analyze(filterRows(fa), fa), B = analyze(filterRows(fb), fb);
+  const d = (a, b) => b ? (a-b)/b : null;
+  const delta = (a, b, inverse) => { const v = d(a,b); if(v==null) return '—'; const cls = Math.abs(v) < .005 ? '' : ((v>0) !== !!inverse ? 'up' : 'down'); return `<span class="${cls}">${v>0?'▲':v<0?'▼':''} ${signPct(v)}</span>`; };
+  const row = (l, a, b, f) => `<tr><td>${l}</td><td class="n">${f(a)}</td><td class="n">${f(b)}</td><td class="n">${delta(a,b)}</td></tr>`;
+  const cats = [...new Set([...A.cats.map(x=>x.c), ...B.cats.map(x=>x.c)])].map(cn => { const a = A.byCat[cn]?.s || 0, b = B.byCat[cn]?.s || 0; return { c: cn, a, b, diff: a-b }; }).sort((x,y)=>Math.abs(y.diff)-Math.abs(x.diff));
+  const prods = [...new Set([...Object.keys(A.byProd), ...Object.keys(B.byProd)])].map(p => ({ p, a: A.byProd[p]?.s || 0, b: B.byProd[p]?.s || 0 })).map(x => ({...x, diff: x.a-x.b}));
+  const ups = [...prods].sort((x,y)=>y.diff-x.diff).filter(x=>x.diff>0).slice(0,6), downs = [...prods].sort((x,y)=>x.diff-y.diff).filter(x=>x.diff<0).slice(0,6);
+  const [mn, mx] = dataExtent();
+  return `${sampleBanner()}
+  <section class="panel">
+    <div class="panel-head"><h2>בחר שתי תקופות</h2><p>ברירת מחדל: השבוע האחרון מול השבוע שלפניו</p></div>
+    <div class="form-grid">
+      <div class="field"><label for="cAf">תקופה נוכחית: מ־</label><input type="date" id="cAf" value="${c.aFrom}" min="${mn}" max="${mx}"></div>
+      <div class="field"><label for="cAt">עד</label><input type="date" id="cAt" value="${c.aTo}" min="${mn}" max="${mx}"></div>
+      <div class="field"><label for="cBf">תקופת השוואה: מ־</label><input type="date" id="cBf" value="${c.bFrom}" min="${mn}" max="${mx}"></div>
+      <div class="field"><label for="cBt">עד</label><input type="date" id="cBt" value="${c.bTo}" min="${mn}" max="${mx}"></div>
+    </div>
+    <div class="quick" style="margin-top:10px">
+      <button type="button" class="chip" data-cp="7">שבוע מול שבוע קודם</button>
+      <button type="button" class="chip" data-cp="14">שבועיים מול שבועיים</button>
+      <button type="button" class="chip" data-cp="28">4 שבועות מול 4 קודמים</button>
+    </div>
+  </section>
+  <div class="grid2">
+    <section class="panel">
+      <div class="panel-head"><h2>מדדים מרכזיים</h2></div>
+      <div class="tbl-wrap"><table><thead><tr><th>מדד</th><th class="n">נוכחית<br><span class="small">${heDate(c.aFrom)}–${heDate(c.aTo)}</span></th><th class="n">השוואה<br><span class="small">${heDate(c.bFrom)}–${heDate(c.bTo)}</span></th><th class="n">שינוי</th></tr></thead><tbody>
+        ${row('מכירות', A.sales, B.sales, money)}
+        ${row('מכירות ליום פעילות', A.activeDays?A.sales/A.activeDays:0, B.activeDays?B.sales/B.activeDays:0, money)}
+        ${row('מספר עסקאות', A.txns, B.txns, v=>nf0.format(v))}
+        ${row('ממוצע עסקה', A.avg, B.avg, money2)}
+        ${A.itemsPerTx && B.itemsPerTx ? row('מוצרים בעסקה', A.itemsPerTx, B.itemsPerTx, v=>nf1.format(v)) : ''}
+        ${row('רווח גולמי (נמדד)', A.gp, B.gp, money)}
+        <tr><td>שיעור רווח גולמי</td><td class="n">${pct(A.margin)}</td><td class="n">${pct(B.margin)}</td><td class="n">${A.margin!=null&&B.margin!=null ? ((A.margin-B.margin)>=0?'+':'')+nf1.format((A.margin-B.margin)*100)+' נק׳' : '—'}</td></tr>
+      </tbody></table></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>מכירות יום אחר יום</h2></div>
+      <div class="chart" id="chCmp"></div>
+      <div class="legend"><span><i style="background:var(--series-a)"></i>תקופה נוכחית</span><span><i style="background:var(--series-b)"></i>תקופת השוואה</span></div>
+      <p class="explain" style="margin-top:6px">הציר מראה את היום בתוך כל תקופה (יום 1, יום 2...), כדי ששתי התקופות יעמדו זו מול זו.</p>
+    </section>
+  </div>
+  <div class="grid2">
+    <section class="panel">
+      <div class="panel-head"><h2>שינוי לפי קטגוריה</h2></div>
+      <div class="tbl-wrap"><table><thead><tr><th>קטגוריה</th><th class="n">נוכחית</th><th class="n">השוואה</th><th class="n">הפרש</th><th class="n">שינוי</th></tr></thead><tbody>
+        ${cats.map(x => `<tr><td>${esc(x.c)}</td><td class="n">${money(x.a)}</td><td class="n">${money(x.b)}</td><td class="n ${x.diff>0?'up':x.diff<0?'down':''}">${x.diff>0?'+':''}${money(x.diff)}</td><td class="n">${delta(x.a,x.b)}</td></tr>`).join('')}
+      </tbody></table></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>מוצרים שעלו וירדו</h2></div>
+      <h3 class="small" style="margin-bottom:6px">עלו הכי הרבה</h3>
+      ${ups.length ? hbars(ups.map(x=>({label:x.p, v:x.diff})), v=>'+'+money(v)) : '<p class="muted small">אין</p>'}
+      <h3 class="small" style="margin:14px 0 6px">ירדו הכי הרבה</h3>
+      ${downs.length ? hbars(downs.map(x=>({label:x.p, v:-x.diff, color:'var(--bad)'})), v=>'-'+money(v)) : '<p class="muted small">אין</p>'}
+    </section>
+  </div>
+  ${exercise('cmp', exCompare(A, B))}`;
+}
+function afterCompare(){
+  const c = S.cmp;
+  [['cAf','aFrom'],['cAt','aTo'],['cBf','bFrom'],['cBt','bTo']].forEach(([id,k]) => $('#'+id)?.addEventListener('change', e => { c[k] = e.target.value; render(); }));
+  document.querySelectorAll('[data-cp]').forEach(b => b.addEventListener('click', () => { const n = +b.dataset.cp, [, mx] = dataExtent(); c.aTo = mx; c.aFrom = addDays(mx, -(n-1)); c.bTo = addDays(mx, -n); c.bFrom = addDays(mx, -(2*n-1)); render(); }));
+  const el = $('#chCmp'); if(!el) return;
+  const fa = { from: c.aFrom, to: c.aTo, cat: S.filter.cat, prod: S.filter.prod }, fb = { from: c.bFrom, to: c.bTo, cat: S.filter.cat, prod: S.filter.prod };
+  const A = analyze(filterRows(fa), fa), B = analyze(filterRows(fb), fb);
+  const seq = (from, to, X) => { const out = [], ds = []; if(!from||!to) return [out, ds]; for(let d=from; d<=to; d=addDays(d,1)){ out.push(X.byDate[d]?.s || 0); ds.push(d); } return [out, ds]; };
+  const [va, da] = seq(c.aFrom, c.aTo, A), [vb, db] = seq(c.bFrom, c.bTo, B);
+  const n = Math.max(va.length, vb.length), labels = Array.from({length:n}, (_,i)=>'יום '+(i+1));
+  lineChart(el, [{ name:'נוכחית', values: va, color:'var(--series-a)' }, { name:'השוואה', values: vb, color:'var(--series-b)' }], labels, {
+    aria: 'השוואת מכירות יומיות', tip: i => `<b>יום ${i+1}</b><br>נוכחית${da[i] ? ' ('+DOW[dowOf(da[i])]+' '+heDate(da[i])+')' : ''}: ${money(va[i]||0)}<br>השוואה${db[i] ? ' ('+DOW[dowOf(db[i])]+' '+heDate(db[i])+')' : ''}: ${money(vb[i]||0)}` });
+}
+function exCompare(A, B){
+  if(!A.sales || !B.sales || !A.txns || !B.txns) return null;
+  const ds = A.sales/B.sales - 1, dt = A.txns/B.txns - 1, da = A.avg/B.avg - 1;
+  const lt = Math.log(A.txns/B.txns), la = Math.log(A.avg/B.avg);
+  const traffic = Math.abs(lt) >= Math.abs(la);
+  const opts = [
+    { t: 'מספר הלקוחות (העסקאות) השתנה, וזה מה שהזיז את המכירות', ok: traffic },
+    { t: 'גודל הסל (ממוצע העסקה) השתנה, וזה מה שהזיז את המכירות', ok: !traffic },
+    { t: 'אי אפשר לדעת בלי נתוני רווח', ok: false },
+  ];
+  return { title: 'מה באמת הזיז את המכירות?', q: `בין התקופות המכירות השתנו ב־<b>${signPct(ds)}</b>. מספר העסקאות השתנה ב־<b>${signPct(dt)}</b> וממוצע העסקה ב־<b>${signPct(da)}</b>. מה הגורם העיקרי לשינוי, ולכן על מה כדאי לעבוד?`,
+    options: opts, explain: `מכירות = מספר עסקאות × ממוצע עסקה. לכן השינוי במכירות מתפרק לשני חלקים: (1${dt>=0?'+':''}${nf1.format(dt*100)}%) × (1${da>=0?'+':''}${nf1.format(da*100)}%) ≈ ${signPct(ds)}. החלק הגדול יותר הוא <b>${traffic ? 'מספר העסקאות' : 'ממוצע העסקה'}</b>. ${traffic ? (dt<0 ? 'פחות לקוחות נכנסו: בדוק שעות פתיחה, מתחרים חדשים, חגים או מוצרי מפתח שחסרו.' : 'יותר לקוחות נכנסו: נצל את התנועה כדי להגדיל גם את הסל, למשל עם מוצרים ליד הקופה.') : (da<0 ? 'לקוחות קונים פחות בכל ביקור: בדוק חוסרים במלאי ומחירים שעלו.' : 'הלקוחות קונים יותר בכל ביקור: זיהית מה עבד? חזור עליו.')}` };
+}
+
+/* ---------- view: actions (reorder, promos, basket) ---------- */
+function viewActions(){
+  const rows = filterRows(), A = analyze(rows, S.filter);
+  if(!rows.length) return emptyView();
+  const { lead, cover } = S.plan;
+  const reorder = A.products.filter(p => p.vel > 0).map(p => {
+    const cat = S.catalog[p.p] || {}; const L = cat.lead ?? lead; const stock = cat.stock;
+    const need = p.vel * (L + cover);
+    const daysLeft = stock != null ? stock / p.vel : null;
+    const qty = stock != null ? Math.max(0, Math.ceil(need - stock)) : Math.ceil(need);
+    const urgency = daysLeft == null ? 1 : daysLeft <= L ? 3 : daysLeft <= L + 2 ? 2 : qty > 0 ? 1 : 0;
+    return { ...p, L, stock, daysLeft, qty, urgency };
+  }).filter(p => p.qty > 0).sort((a,b) => b.urgency - a.urgency || (a.daysLeft??99) - (b.daysLeft??99) || b.vel - a.vel);
+  const pairs = basketPairs(A);
+  const promos = buildPromos(A, pairs);
+  const basket = buildBasket(A, pairs);
+  const urg = u => u===3 ? '<span class="pill bad">דחוף</span>' : u===2 ? '<span class="pill warn">בקרוב</span>' : '<span class="pill neutral">רגיל</span>';
+  return `${sampleBanner()}
+  <section class="panel">
+    <div class="panel-head"><h2>המלצות להזמנה מחדש</h2><p>לפי קצב המכירה בתקופה שנבחרה</p></div>
+    <div class="form-grid" style="max-width:520px;margin-bottom:12px">
+      <div class="field"><label for="pLead">ימי אספקה (ברירת מחדל)</label><input type="number" id="pLead" min="0" max="30" value="${lead}"></div>
+      <div class="field"><label for="pCover">לכמה ימים להזמין</label><input type="number" id="pCover" min="1" max="60" value="${cover}"></div>
+    </div>
+    <p class="explain">כמות להזמנה = מכירה ממוצעת ליום × (ימי אספקה + ימים לכסות) − מלאי קיים. כשהמלאי לא ידוע, הכמות היא הצריכה הצפויה לתקופה. אפשר להזין מלאי בטבלת המוצרים.</p>
+    <div class="tbl-wrap scroll-y" style="margin-top:10px"><table><thead><tr><th>מוצר</th><th>קטגוריה</th><th class="n">מכירה ליום</th><th class="n">מלאי</th><th class="n">ימי מלאי</th><th class="n">להזמין</th><th>עדיפות</th></tr></thead><tbody>
+      ${reorder.slice(0,40).map(p => `<tr><td>${esc(p.p)}</td><td>${esc(p.c)}</td><td class="n">${nf1.format(p.vel)}</td><td class="n">${p.stock ?? '<span class="muted">לא ידוע</span>'}</td><td class="n">${p.daysLeft!=null ? nf1.format(p.daysLeft) : '—'}</td><td class="n"><b>${nf0.format(p.qty)}</b></td><td>${urg(p.urgency)}</td></tr>`).join('') || '<tr><td colspan="7" class="empty">אין מה להזמין כרגע</td></tr>'}
+    </tbody></table></div>
+  </section>
+  <div class="grid2">
+    <section class="panel">
+      <div class="panel-head"><h2>הצעות למבצעים</h2><p>מבוסס על הנתונים שלך</p></div>
+      <div class="reco">${promos.map(r => `<div class="reco-item"><span class="ico">${r.icon}</span><span class="t">${r.t}</span><span class="d">${r.d}</span></div>`).join('') || '<p class="muted">אין מספיק נתונים להצעות.</p>'}</div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>איך להגדיל את ממוצע העסקה</h2><p>היום: ${money2(A.avg)} לעסקה</p></div>
+      <div class="reco">${basket.map(r => `<div class="reco-item"><span class="ico">${r.icon}</span><span class="t">${r.t}</span><span class="d">${r.d}</span></div>`).join('')}</div>
+    </section>
+  </div>
+  ${pairs.length ? `<section class="panel"><div class="panel-head"><h2>מוצרים שנקנים יחד</h2><p>מתוך עסקאות עם מספר קבלה</p></div>
+    <div class="tbl-wrap"><table><thead><tr><th>מוצר א׳</th><th>מוצר ב׳</th><th class="n">עסקאות משותפות</th><th class="n">מי שקנה א׳ קנה גם ב׳</th><th class="n">פי כמה מהמקרי</th></tr></thead><tbody>
+    ${pairs.map(x => `<tr><td>${esc(x.a)}</td><td>${esc(x.b)}</td><td class="n">${nf0.format(x.c)}</td><td class="n">${pct(x.confA,0)}</td><td class="n">×${nf1.format(x.lift)}</td></tr>`).join('')}
+    </tbody></table></div><p class="explain" style="margin-top:8px">״פי כמה מהמקרי״ מעל 1 אומר שהמוצרים נקנים יחד יותר ממה שהיה קורה במקרה. אלה מועמדים טובים למבצע זוגי או להצבה זה ליד זה.</p></section>` : ''}
+  ${exercise('act', exActions(A))}`;
+}
+function buildPromos(A, pairs){
+  const out = [];
+  const m = A.margin ?? 0.25;
+  const slowHigh = A.products.filter(p => p.speed === 'slow' && p.margin != null && p.margin >= m).sort((a,b)=>b.margin-a.margin).slice(0,3);
+  if(slowHigh.length) out.push({ icon:'%', t:`מבצע על מוצרים איטיים עם רווח גבוה`, d:`${slowHigh.map(p=>`${esc(p.p)} (${pct(p.margin,0)} רווח)`).join(', ')}. יש מקום להנחה של 10–15% ועדיין להרוויח. נסה ״2 ב־״ כדי להזיז מלאי.` });
+  if(pairs[0]){ const x = pairs[0]; out.push({ icon:'+', t:`חבילה: ${esc(x.a)} + ${esc(x.b)}`, d:`נקנים יחד ב־${nf0.format(x.c)} עסקאות, פי ${nf1.format(x.lift)} מהצפוי. מחיר חבילה קצת נמוך מהסכום ימשוך גם את מי שקונה רק אחד מהם.` }); }
+  if(A.hasHour){
+    const hs = A.hourSales.map((v,h)=>({h,v})).filter(x=>x.v>0);
+    if(hs.length > 4){ const low = [...hs].sort((a,b)=>a.v-b.v).slice(0,2).map(x=>x.h).sort((a,b)=>a-b); out.push({ icon:'⏱', t:`״שעה שקטה״ בשעות ${low.map(h=>h+':00').join(' ו־')}`, d:`אלה השעות החלשות ביותר. הנחה קטנה על מאפים או קפה בשעות האלה מושכת לקוחות בלי לפגוע בשעות העמוסות.` }); }
+  }
+  const lowMargin = A.products.filter(p => p.margin != null && p.margin < Math.min(0.12, m/2) && p.abc === 'A').slice(0,3);
+  if(lowMargin.length) out.push({ icon:'!', t:'לא לעשות מבצע על מוצרי פדיון עם רווח נמוך', d:`${lowMargin.map(p=>`${esc(p.p)} (${pct(p.margin,0)})`).join(', ')} נמכרים ממילא. הנחה עליהם תוריד רווח כמעט בלי להוסיף לקוחות. השתמש בהם כ״מוצר מגנט״ במחיר רגיל, ותמכור לידם מוצרים רווחיים.` });
+  const negative = A.products.filter(p => p.margin != null && p.margin < 0);
+  if(negative.length) out.push({ icon:'₪', t:`${negative.length} מוצרים נמכרים מתחת לעלות`, d:`${negative.slice(0,4).map(p=>esc(p.p)).join(', ')}. בדוק אם המחיר בקופה עדכני או אם עלות הספק עלתה.` });
+  return out;
+}
+function buildBasket(A, pairs){
+  const out = [];
+  const totals = [...A.txTotals.values()];
+  const m = A.margin ?? 0.25;
+  if(totals.length > 30){
+    const med = median(totals), thr = Math.ceil(med*1.3/10)*10, share = totals.filter(t => t >= thr*0.75 && t < thr).length / totals.length;
+    out.push({ icon:'↑', t:`הטבה מעל ₪${thr}`, d:`חצי מהעסקאות הן עד ${money(med)}. ${pct(share,0)} מהעסקאות נמצאות קצת מתחת ל־₪${thr}. הטבה קטנה (למשל שקית חטיף או משלוח חינם) מעל הסכום הזה מעודדת להוסיף עוד מוצר.` });
+  }
+  const impulse = A.products.filter(p => p.unitPrice > 0 && p.unitPrice <= Math.max(6, A.avg*0.15) && p.margin != null && p.margin >= m).sort((a,b)=>b.margin-a.margin).slice(0,4);
+  if(impulse.length) out.push({ icon:'◎', t:'מוצרי דחף ליד הקופה', d:`${impulse.map(p=>`${esc(p.p)} (${money2(p.unitPrice)}, ${pct(p.margin,0)} רווח)`).join(', ')}. זולים, רווחיים וקל להוסיף אותם ברגע האחרון.` });
+  if(pairs.length > 1){ const x = pairs[1]; out.push({ icon:'⇄', t:`להציב את ${esc(x.b)} ליד ${esc(x.a)}`, d:`${pct(x.confA,0)} ממי שקונה ${esc(x.a)} קונה גם ${esc(x.b)}. כשהם קרובים, גם השאר ייזכרו לקחת.` }); }
+  const add = A.txns * 0.1 * Math.max(5, A.avg*0.12);
+  const perMonth = A.activeDays ? add / A.activeDays * 26 : 0;
+  out.push({ icon:'=', t:'מה זה שווה בכסף', d:`אם רק 1 מכל 10 לקוחות יוסיף מוצר של ${money(Math.max(5, A.avg*0.12))}, המכירות יגדלו בכ־${money(perMonth)} בחודש, ורווח גולמי של כ־${money(perMonth*m)}.` });
+  out.push({ icon:'?', t:'לשאול ״עוד משהו?״', d:'הקופאי מציע מוצר אחד קבוע של השבוע (למשל מאפה טרי). זה עולה אפס ומשפיע ישר על ממוצע העסקה.' });
+  return out;
+}
+function afterActions(){
+  $('#pLead')?.addEventListener('change', e => { S.plan.lead = Math.max(0, +e.target.value || 0); render(); });
+  $('#pCover')?.addEventListener('change', e => { S.plan.cover = Math.max(1, +e.target.value || 1); render(); });
+}
+function exActions(A){
+  const cand = A.products.filter(p => p.margin != null && p.margin > 0.15 && p.q >= 5).sort((a,b)=>b.s-a.s)[0];
+  if(!cand) return null;
+  const m = cand.margin, disc = 0.1;
+  const need = disc / (m - disc);
+  const wrong1 = disc, wrong2 = need * 2;
+  const opts = shuffleOpts([
+    { t: `בערך ${pct(wrong1,0)} יותר יחידות, כמו גובה ההנחה`, ok: false },
+    { t: `בערך ${pct(need,0)} יותר יחידות`, ok: true },
+    { t: `בערך ${pct(wrong2,0)} יותר יחידות`, ok: false },
+  ], Math.round(m*1000));
+  return { title: 'כמה צריך למכור יותר אחרי הנחה?', q: `על <b>${esc(cand.p)}</b> הרווח הגולמי הוא ${pct(m)} (מחיר ${money2(cand.unitPrice)}, עלות ${money2(cand.cost)}). אתה שוקל הנחה של 10%. בכמה צריכה לעלות הכמות הנמכרת כדי שהרווח הגולמי הכולל לא ירד?`,
+    options: opts, explain: `לפני ההנחה הרווח ליחידה הוא ${money2(cand.unitPrice - cand.cost)}. אחרי 10% הנחה המחיר ${money2(cand.unitPrice*0.9)} והרווח ליחידה ${money2(cand.unitPrice*0.9 - cand.cost)}. הנוסחה: הנחה ÷ (% רווח − הנחה) = 10% ÷ (${pct(m)} − 10%) = <b>${pct(need,0)}</b>. כלומר הנחה ״קטנה״ דורשת קפיצה גדולה במכירות. מבצע כדאי כשהוא מביא לקוחות חדשים או מזיז מלאי תקוע, לא רק כדי ״למכור יותר״.` };
+}
+
+/* ---------- view: fixed expenses ---------- */
+const FIXED = [['electricity','חשמל'],['arnona','ארנונה'],['bank','בנק ועמלות אשראי'],['salary','שכר עובדים'],['loans','החזר הלוואות'],['rent','שכירות'],['other','אחר']];
+function viewExpenses(){
+  const rows = filterRows({ ...S.filter, cat:'', prod:'' }), A = analyze(rows, S.filter);
+  if(!rows.length) return emptyView();
+  const F = sum(FIXED.map(([k])=>+S.fixed[k]||0));
+  const m = A.margin;
+  const perDayGp = A.activeDays && m!=null ? (A.sales/A.activeDays)*m : 0;
+  const daysPerMonth = A.days ? Math.min(31, A.activeDays / A.days * 30) : 26;
+  const gpMonth = perDayGp * daysPerMonth;
+  const salesMonth = A.activeDays ? A.sales/A.activeDays*daysPerMonth : 0;
+  const net = gpMonth - F;
+  const be = m ? F / m / daysPerMonth : null;
+  const items = FIXED.map(([k,l]) => ({ k, l, v: +S.fixed[k]||0 })).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
+  const scale = Math.max(gpMonth, F, 1);
+  return `${sampleBanner()}
+  ${(S.filter.cat||S.filter.prod) ? '<div class="banner info"><p>במסך הזה החישוב תמיד על כל החנות, כי ההוצאות הקבועות משותפות לכל המוצרים. סינון התאריכים כן חל.</p></div>' : ''}
+  <section class="panel">
+    <div class="panel-head"><h2>הוצאות קבועות בחודש</h2><p>מה שמשלמים בלי קשר לכמה מוכרים</p></div>
+    <div class="form-grid">${FIXED.map(([k,l]) => `<div class="field"><label for="fx_${k}">${l} (₪ לחודש)</label><input type="number" min="0" step="10" id="fx_${k}" data-fx="${k}" value="${S.fixed[k]||''}" inputmode="numeric" placeholder="0"></div>`).join('')}</div>
+    <p class="explain" style="margin-top:10px">החזר הלוואה הוא כסף שיוצא מהקופה כל חודש, גם אם בהנהלת החשבונות רק הריבית נחשבת הוצאה. לכן הוא נכלל כאן: מה שקובע אם נשאר לך כסף בסוף החודש הוא התזרים.</p>
+  </section>
+  ${m==null ? '<div class="banner"><p>אין עדיין מוצרים עם מחיר עלות, לכן אי אפשר לחשב רווח. השלם עלויות במסך המוצרים.</p></div>' : `
+  <div class="kpis">
+    <div class="kpi"><span class="l">מכירות צפויות בחודש</span><span class="v">${money(salesMonth)}</span><span class="s">לפי ${nf0.format(daysPerMonth)} ימי פעילות</span></div>
+    <div class="kpi"><span class="l">רווח גולמי צפוי בחודש</span><span class="v">${money(gpMonth)}</span><span class="s">${pct(m)} רווח · ${A.coverage<.97?'אומדן, חלק מהעלויות חסרות':'לפי עלויות ידועות'}</span></div>
+    <div class="kpi"><span class="l">הוצאות קבועות</span><span class="v">${money(F)}</span><span class="s">${money(F/daysPerMonth)} לכל יום פעילות</span></div>
+    <div class="kpi ${net<0?'alert':''}"><span class="l">${net>=0?'רווח נקי משוער':'הפסד משוער'}</span><span class="v ${net<0?'down':''}">${money(net)}</span><span class="s">${salesMonth? pct(net/salesMonth)+' מהמכירות' : ''}</span></div>
+    <div class="kpi"><span class="l">נקודת איזון</span><span class="v">${be!=null ? money(be) : '—'}</span><span class="s">מכירות ליום כדי לא להפסיד · היום ${money(A.activeDays?A.sales/A.activeDays:0)}</span></div>
+  </div>
+  <div class="grid2">
+    <section class="panel">
+      <div class="panel-head"><h2>לאן הולך הרווח הגולמי</h2></div>
+      <div class="hbars">
+        <div class="hbar"><span class="name"><b>רווח גולמי</b></span><span class="track"><span class="fill" style="display:block;width:${gpMonth/scale*100}%"></span></span><span class="val">${money(gpMonth)}</span></div>
+        ${items.map(x => `<div class="hbar"><span class="name">${x.l}</span><span class="track"><span class="fill" style="display:block;width:${x.v/scale*100}%;background:var(--series-b)"></span></span><span class="val">−${money(x.v)}</span></div>`).join('')}
+        <div class="hbar"><span class="name"><b>${net>=0?'נשאר':'חסר'}</b></span><span class="track"><span class="fill" style="display:block;width:${Math.abs(net)/scale*100}%;background:${net>=0?'var(--good)':'var(--bad)'}"></span></span><span class="val ${net<0?'down':''}">${money(net)}</span></div>
+      </div>
+      <p class="explain" style="margin-top:10px">כל פס כחול הוא הוצאה קבועה שמכוסה מתוך הרווח הגולמי. הפס האחרון הוא מה שנשאר לבעלים, לפני מס.</p>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>כמה עולה כל הוצאה</h2></div>
+      <div class="tbl-wrap"><table><thead><tr><th>הוצאה</th><th class="n">לחודש</th><th class="n">% מהמכירות</th><th class="n">ימי עבודה לכיסוי</th></tr></thead><tbody>
+        ${items.map(x => `<tr><td>${x.l}</td><td class="n">${money(x.v)}</td><td class="n">${salesMonth?pct(x.v/salesMonth):'—'}</td><td class="n">${perDayGp?nf1.format(x.v/perDayGp):'—'}</td></tr>`).join('') || '<tr><td colspan="4" class="empty">הזן הוצאות למעלה</td></tr>'}
+        ${items.length ? `<tr><td><b>סה״כ</b></td><td class="n"><b>${money(F)}</b></td><td class="n"><b>${salesMonth?pct(F/salesMonth):'—'}</b></td><td class="n"><b>${perDayGp?nf1.format(F/perDayGp):'—'}</b></td></tr>` : ''}
+      </tbody></table></div>
+      <p class="explain" style="margin-top:10px">״ימי עבודה לכיסוי״ = כמה ימים של רווח גולמי צריך רק כדי לשלם את ההוצאה. כל נקודת אחוז של שיפור ברווח הגולמי שווה כ־<b>${money(salesMonth*0.01)}</b> בחודש.</p>
+    </section>
+  </div>`}
+  ${m!=null ? exercise('exp', exExpenses(A, m, daysPerMonth, F, gpMonth)) : ''}`;
+}
+function afterExpenses(){
+  document.querySelectorAll('[data-fx]').forEach(inp => inp.addEventListener('change', () => { S.fixed[inp.dataset.fx] = Math.max(0, +inp.value || 0); queueFixedSave(); render(); }));
+}
+function exExpenses(A, m, dpm, F, gpMonth){
+  const raise = 2000;
+  const perDay = raise / dpm / m;
+  const naive = raise / dpm;
+  const opts = shuffleOpts([
+    { t: `כ־${money(naive)} ביום, כי ₪${nf0.format(raise)} חלקי ${nf0.format(dpm)} ימים`, ok: false },
+    { t: `כ־${money(perDay)} ביום`, ok: true },
+    { t: `כ־${money(perDay*m*m)} ביום`, ok: false },
+  ], Math.round(m*977));
+  return { title: 'העלאת שכר: כמה צריך למכור יותר?', q: `עובד מבקש העלאה של <b>₪${nf0.format(raise)}</b> בחודש. החנות פתוחה כ־${nf0.format(dpm)} ימים בחודש, ושיעור הרווח הגולמי שלך ${pct(m)}. כמה מכירות נוספות ביום צריך כדי לכסות את ההעלאה?`,
+    options: opts, explain: `כל שקל מכירה מכניס רק ${pct(m)} רווח גולמי. לכן: ₪${nf0.format(raise)} ÷ ${nf0.format(dpm)} ימים = ${money(naive)} רווח ביום, ובמכירות: ${money(naive)} ÷ ${pct(m)} = <b>${money(perDay)}</b> ביום. זה בערך ${nf1.format(perDay/Math.max(A.avg,1))} עסקאות ממוצעות נוספות ביום. אם העובד הזה עוזר להשיג את זה (פחות תורים, מדפים מלאים) ההעלאה מצדיקה את עצמה.` };
+}
+
+/* ---------- view: data ---------- */
+function viewData(){
+  const reps = [...S.reports].sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  const storeNote = Store.mode === 'db' ? 'הנתונים נשמרים בחשבון שלך ונטענים בכל כניסה.' : Store.mode === 'local' ? 'הנתונים נשמרים בדפדפן הזה בלבד.' : 'מתחבר לאחסון…';
+  return `${S.sample ? `<div class="banner info"><p><b>כרגע מוצגים נתוני דוגמה.</b> העלה דוח מהקופה (Excel או CSV), הדבק טבלה, או הזן מכירות ידנית. מהדוח הראשון שתשמור, המערכת תציג רק את הנתונים שלך.</p></div>` : ''}
+  <section class="panel">
+    <div class="panel-head"><h2>העלאת דוח מכירות מהקופה</h2><p>${storeNote}</p></div>
+    <label class="drop" id="drop" for="file"><strong>גרור לכאן קובץ, או לחץ לבחירה</strong><span class="muted small">Excel ‏(xlsx, xls) או CSV. הדוח צריך לכלול לפחות תאריך, מוצר וסכום. רצוי גם שעה, מספר קבלה, קטגוריה, כמות ועלות.</span><input type="file" id="file" accept=".xlsx,.xls,.csv,.txt" hidden></label>
+    <details style="margin-top:12px"><summary class="small" style="cursor:pointer">או הדבק טבלה מהקופה / מאקסל</summary>
+      <textarea class="paste field" id="paste" placeholder="תאריך	שעה	מספר קבלה	מוצר	קטגוריה	כמות	סכום&#10;01/11/2026	08:15	10234	חלב 3%	חלב	2	13.80"></textarea>
+      <div class="row-actions" style="margin-top:8px"><button type="button" class="btn small" id="btnPaste">קרא את הטבלה</button></div>
+    </details>
+    <div id="mapArea"></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>הזנה ידנית</h2><p>למכירה בודדת או לתיקון</p></div>
+    <form id="manual" class="form-grid">
+      <div class="field"><label for="mD">תאריך</label><input type="date" id="mD" required value="${ymd(new Date())}"></div>
+      <div class="field"><label for="mH">שעה</label><input type="time" id="mH" value="12:00"></div>
+      <div class="field"><label for="mT">מספר קבלה</label><input id="mT" placeholder="לא חובה"></div>
+      <div class="field"><label for="mP">מוצר</label><input id="mP" list="dlProd" required></div>
+      <div class="field"><label for="mC">קטגוריה</label><input id="mC" list="dlCat"></div>
+      <div class="field"><label for="mQ">כמות</label><input id="mQ" type="number" step="0.01" min="0" value="1" required></div>
+      <div class="field"><label for="mS">סכום (₪)</label><input id="mS" type="number" step="0.01" min="0" required></div>
+      <div class="field"><label for="mK">עלות ליחידה (₪)</label><input id="mK" type="number" step="0.01" min="0" placeholder="לא חובה"></div>
+      <div class="field"><button class="btn primary" type="submit">הוסף מכירה</button></div>
+    </form>
+    <datalist id="dlProd">${Object.keys(S.catalog).concat(productsList()).filter((v,i,a)=>a.indexOf(v)===i).slice(0,800).map(p=>`<option value="${esc(p)}">`).join('')}</datalist>
+    <datalist id="dlCat">${categories().map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>מחירון: עלויות ומלאי</h2><p>${Object.keys(S.catalog).length} מוצרים · ${Object.values(S.catalog).filter(x=>x.cost!=null&&x.cost!=='').length} עם עלות</p></div>
+    <p class="explain">יש לך קובץ עלויות מהספקים או ממערכת הקופה? העלה אותו כאן כדי להשלים מחירי עלות, קטגוריות, מלאי וימי אספקה בבת אחת. ההתאמה נעשית לפי שם המוצר.</p>
+    <div class="row-actions" style="margin-top:10px"><label class="btn small" for="catFile">העלה קובץ עלויות</label><input type="file" id="catFile" accept=".xlsx,.xls,.csv,.txt" hidden></div>
+    <div id="catMapArea"></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>דוחות שמורים</h2><p>${reps.length ? reps.length + ' דוחות' : 'עוד לא נשמרו דוחות'}</p></div>
+    ${reps.length ? `<div class="tbl-wrap"><table><thead><tr><th>כלול</th><th>שם</th><th>תקופה</th><th class="n">שורות</th><th class="n">מכירות</th><th>נשמר</th><th></th></tr></thead><tbody>
+      ${reps.map(r => `<tr><td><input type="checkbox" data-act="${r.id}" ${r.active!==false?'checked':''} aria-label="כלול את ${esc(r.name)}"></td><td>${esc(r.name)}</td><td>${heDate(r.from)} – ${heDate(r.to)}</td><td class="n">${nf0.format(r.rows.length)}</td><td class="n">${money(sum(r.rows.map(x=>x.s)))}</td><td>${r.createdAt ? heDate(r.createdAt.slice(0,10)) : ''}</td>
+        <td>${S.confirmDel === r.id ? `<span class="small">למחוק?</span> <button type="button" class="btn small danger" data-del="${r.id}">כן, מחק</button> <button type="button" class="btn small ghost" data-cancel>ביטול</button>` : `<button type="button" class="btn small ghost danger" data-askdel="${r.id}">מחק</button>`}</td></tr>`).join('')}
+    </tbody></table></div><p class="explain" style="margin-top:8px">בטל סימון ״כלול״ כדי להוציא דוח מהחישובים בלי למחוק אותו (למשל אם העלית את אותה תקופה פעמיים).</p>` : '<p class="muted">דוחות שתעלה יופיעו כאן ויישמרו לשימוש חוזר.</p>'}
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>ניתוחים שמורים</h2><p>תמונת מצב של המדדים בזמן השמירה</p></div>
+    ${S.analyses.length ? `<div class="tbl-wrap"><table><thead><tr><th>שם</th><th>סינון</th><th class="n">מכירות</th><th class="n">עסקאות</th><th class="n">ממוצע</th><th class="n">רווח גולמי</th><th class="n">% רווח</th><th></th></tr></thead><tbody>
+      ${[...S.analyses].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).map(a => `<tr><td><b>${esc(a.name)}</b><br><span class="small muted">${heDate(a.createdAt.slice(0,10))}</span></td><td class="wrap small">${esc(filterLabel(a.filter))}</td><td class="n">${money(a.k.sales)}</td><td class="n">${nf0.format(a.k.txns)}</td><td class="n">${money2(a.k.avg)}</td><td class="n">${money(a.k.gp)}</td><td class="n">${pct(a.k.margin)}</td>
+        <td><button type="button" class="btn small" data-apply="${a.id}">פתח</button> <button type="button" class="btn small ghost danger" data-delan="${a.id}">מחק</button></td></tr>${a.note ? `<tr><td colspan="8" class="wrap small muted">הערה: ${esc(a.note)}</td></tr>` : ''}`).join('')}
+    </tbody></table></div>` : '<p class="muted">לחץ ״שמור ניתוח״ למעלה כדי לשמור את המדדים והסינון הנוכחיים, ולחזור אליהם אחר כך.</p>'}
+  </section>`;
+}
+function afterData(){
+  const drop = $('#drop'), file = $('#file');
+  file?.addEventListener('change', () => file.files[0] && handleFile(file.files[0], 'sales'));
+  drop?.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+  drop?.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop?.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); const f = e.dataTransfer.files[0]; if(f) handleFile(f, 'sales'); });
+  $('#btnPaste')?.addEventListener('click', () => { const t = $('#paste').value.trim(); if(!t) return; prepareMapping(parseDelimited(t), 'הדבקה ' + heDate(ymd(new Date())), 'sales'); });
+  const cf = $('#catFile'); cf?.addEventListener('change', () => cf.files[0] && handleFile(cf.files[0], 'catalog'));
+  $('#manual')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    const d = $('#mD').value, hh = $('#mH').value, p = $('#mP').value.trim(), q = +$('#mQ').value || 1, s = +$('#mS').value;
+    if(!d || !p || !(s >= 0)) return;
+    const c = $('#mC').value.trim() || S.catalog[p]?.c || '';
+    const row = { d, h: hh ? +hh.split(':')[0] : -1, t: $('#mT').value.trim() || ('M'+uid()), p, c, q, s, n: 0 };
+    const k = $('#mK').value; if(k !== '') { (S.catalog[p] ||= { c }).cost = +k; queueCatalogSave(); } else if(!S.catalog[p]) S.catalog[p] = { c, cost: null };
+    let rep = S.reports.find(r => r.id === 'manual');
+    if(S.sample) leaveSample();
+    rep = S.reports.find(r => r.id === 'manual');
+    if(!rep){ rep = { id:'manual', name:'הזנה ידנית', createdAt: new Date().toISOString(), rows: [], active: true, source:'manual' }; S.reports.push(rep); }
+    rep.rows.push(row); rep.from = dataExtent(rep.rows)[0]; rep.to = dataExtent(rep.rows)[1];
+    rebuildRows(); render();
+    try { await Store.saveReport(rep); queueCatalogSave(); toast('המכירה נוספה ונשמרה'); } catch(err){ toast('השמירה נכשלה: ' + (err.message||err.code||'')); }
+  });
+  document.querySelectorAll('[data-act]').forEach(cb => cb.addEventListener('change', async () => { const r = S.reports.find(x=>x.id===cb.dataset.act); r.active = cb.checked; rebuildRows(); render(); try { await Store.saveReportMeta(r); } catch(e){ toast('השינוי לא נשמר'); } }));
+  document.querySelectorAll('[data-askdel]').forEach(b => b.addEventListener('click', () => { S.confirmDel = b.dataset.askdel; render(); }));
+  document.querySelectorAll('[data-cancel]').forEach(b => b.addEventListener('click', () => { S.confirmDel = null; render(); }));
+  document.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', async () => { const r = S.reports.find(x=>x.id===b.dataset.del); S.reports = S.reports.filter(x=>x!==r); S.confirmDel = null; rebuildRows(); render(); try { await Store.deleteReport(r); toast('הדוח נמחק'); } catch(e){ toast('המחיקה נכשלה'); } }));
+  document.querySelectorAll('[data-apply]').forEach(b => b.addEventListener('click', () => { const a = S.analyses.find(x=>x.id===b.dataset.apply); S.filter = { ...a.filter }; location.hash = 'dashboard'; render(); toast('הסינון של ״'+a.name+'״ הופעל'); }));
+  document.querySelectorAll('[data-delan]').forEach(b => b.addEventListener('click', async () => { const a = S.analyses.find(x=>x.id===b.dataset.delan); S.analyses = S.analyses.filter(x=>x!==a); render(); try { await Store.deleteAnalysis(a); } catch(e){ toast('המחיקה נכשלה'); } }));
+  if(S.pending) renderMapping();
+}
+
+/* ---------- file parsing ---------- */
+let xlsxLoading = null;
+function loadXLSX(){
+  if(window.XLSX) return Promise.resolve(window.XLSX);
+  return xlsxLoading ||= new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; s.onload = () => res(window.XLSX); s.onerror = () => { xlsxLoading = null; rej(new Error('לא הצלחתי לטעון את קורא האקסל')); }; document.head.appendChild(s); });
+}
+async function handleFile(f, kind){
+  try {
+    let aoa;
+    if(/\.xlsx?$/i.test(f.name)){
+      const X = await loadXLSX(); const wb = X.read(await f.arrayBuffer(), { type:'array', cellDates:true });
+      // pick the sheet with the most rows
+      let best = null; wb.SheetNames.forEach(n => { const a = X.utils.sheet_to_json(wb.Sheets[n], { header:1, raw:true, defval:'' }); if(!best || a.length > best.length) best = a; });
+      aoa = best || [];
+    } else {
+      const buf = await f.arrayBuffer();
+      let text = new TextDecoder('utf-8').decode(buf);
+      if(text.includes('\uFFFD')) { try { text = new TextDecoder('windows-1255').decode(buf); } catch(e){} }
+      aoa = parseDelimited(text.replace(/^\uFEFF/, ''));
+    }
+    prepareMapping(aoa, f.name.replace(/\.[^.]+$/, ''), kind);
+  } catch(e){ showMapMsg(kind, 'לא הצלחתי לקרוא את הקובץ: ' + (e.message || e), true); }
+}
+function parseDelimited(text){
+  const first = text.split(/\r?\n/).find(l => l.trim()) || '';
+  const delim = ['\t',';',','].map(d => [d, first.split(d).length]).sort((a,b)=>b[1]-a[1])[0][0];
+  const rows = []; let row = [], cell = '', q = false;
+  for(let i=0;i<text.length;i++){
+    const ch = text[i];
+    if(q){ if(ch === '"'){ if(text[i+1] === '"'){ cell += '"'; i++; } else q = false; } else cell += ch; continue; }
+    if(ch === '"' && cell === '') { q = true; continue; }
+    if(ch === delim){ row.push(cell); cell = ''; continue; }
+    if(ch === '\n' || ch === '\r'){ if(ch === '\r' && text[i+1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; continue; }
+    cell += ch;
+  }
+  if(cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim() !== ''));
+}
+const FIELDS = {
+  sales: [
+    ['date','תאריך',true,['תאריך','date','יום מכירה','ת. עסקה']],
+    ['time','שעה',false,['שעה','time','זמן']],
+    ['count','מספר עסקאות (בדוח מסוכם)',false,['מספר עסקאות','מס עסקאות','כמות עסקאות','מספר קבלות','transactions count','עסקאות']],
+    ['txn','מספר קבלה / עסקה',false,['מספר עסקה','מס עסקה','מספר קבלה','קבלה','חשבונית','עסקה','receipt','transaction','ticket','מסמך']],
+    ['cost','עלות ליחידה',false,['מחיר עלות','עלות','מחיר קניה','מחיר קנייה','cost']],
+    ['product','מוצר',true,['שם פריט','שם מוצר','תיאור פריט','מוצר','פריט','תיאור','item','product','description']],
+    ['category','קטגוריה',false,['קטגוריה','מחלקה','קבוצה','category','department','group']],
+    ['qty','כמות',false,['כמות','qty','quantity','יחידות','יח׳']],
+    ['total','סכום שורה',false,['סה"כ','סה״כ','סהכ','סכום','total','amount','מכירות','פדיון','לתשלום','נטו']],
+    ['price','מחיר יחידה',false,['מחיר יחידה','מחיר ליחידה','מחיר מכירה','מחיר','price']],
+  ],
+  catalog: [
+    ['product','מוצר',true,['שם פריט','שם מוצר','מוצר','פריט','תיאור','item','product','description']],
+    ['cost','עלות ליחידה',false,['מחיר עלות','עלות','מחיר קניה','מחיר קנייה','cost']],
+    ['category','קטגוריה',false,['קטגוריה','מחלקה','קבוצה','category','department']],
+    ['stock','מלאי',false,['מלאי','stock','inventory','כמות במלאי']],
+    ['lead','ימי אספקה',false,['ימי אספקה','זמן אספקה','lead']],
+  ]
+};
+function prepareMapping(aoa, name, kind){
+  if(!aoa || aoa.length < 2){ showMapMsg(kind, 'הקובץ ריק או שיש בו פחות משתי שורות.', true); return; }
+  const allKw = FIELDS[kind].flatMap(f => f[3]);
+  let hi = 0, best = -1;
+  for(let i=0;i<Math.min(20, aoa.length);i++){ const sc = aoa[i].filter(c => typeof c === 'string' && allKw.some(k => c.toLowerCase().includes(k.toLowerCase()))).length; if(sc > best){ best = sc; hi = i; } }
+  const headers = aoa[hi].map((h,i) => String(h || '').trim() || ('עמודה ' + (i+1)));
+  const data = aoa.slice(hi+1);
+  const map = {}, used = new Set();
+  FIELDS[kind].forEach(([key,, , kws]) => {
+    let bi = -1, bs = 0;
+    headers.forEach((h, i) => {
+      if(used.has(i)) return; const hl = h.toLowerCase();
+      kws.forEach((k, ki) => { if(hl.includes(k.toLowerCase())){ let s = 100 - ki + (hl === k.toLowerCase() ? 50 : 0); if(key==='product' && /קוד|ברקוד|מק"ט|מק״ט|barcode|sku/.test(hl)) s -= 200; if(s > bs){ bs = s; bi = i; } } });
+    });
+    if(bi >= 0 && bs > 0){ map[key] = bi; used.add(bi); }
+  });
+  S.pending = { kind, name, headers, data, map };
+  renderMapping();
+}
+function showMapMsg(kind, text, err){ const el = $(kind === 'catalog' ? '#catMapArea' : '#mapArea'); if(el) el.innerHTML = `<p class="msg ${err?'err':'ok'}" style="margin-top:12px">${esc(text)}</p>`; }
+function renderMapping(){
+  const P = S.pending; if(!P) return;
+  const el = $(P.kind === 'catalog' ? '#catMapArea' : '#mapArea'); if(!el) return;
+  const fields = FIELDS[P.kind];
+  el.innerHTML = `<div style="margin-top:16px;display:grid;gap:12px">
+    <h3>התאמת עמודות · ${esc(P.name)} <span class="small muted">(${nf0.format(P.data.length)} שורות)</span></h3>
+    <p class="explain">זיהיתי את העמודות אוטומטית. בדוק שכל שדה מתאים לעמודה הנכונה בדוח שלך. שדות עם * חובה. אם אין סכום שורה, הסכום יחושב ממחיר × כמות.</p>
+    <div class="maprow">${fields.map(([k,l,req]) => `<div class="field"><label for="map_${k}">${l}${req?' *':''}</label><select id="map_${k}" data-map="${k}"><option value="">— אין —</option>${P.headers.map((h,i)=>`<option value="${i}" ${P.map[k]===i?'selected':''}>${esc(h)}</option>`).join('')}</select></div>`).join('')}</div>
+    ${P.kind === 'sales' ? `<div class="field" style="max-width:340px"><label for="repName">שם הדוח</label><input id="repName" value="${esc(P.name)}"></div>` : ''}
+    <div class="tbl-wrap"><table><thead><tr>${P.headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${P.data.slice(0,5).map(r=>`<tr>${P.headers.map((_,i)=>`<td>${esc(fmtCell(r[i]))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <div id="mapPreview"></div>
+    <div class="row-actions"><button type="button" class="btn primary" id="btnImport">${P.kind==='sales'?'שמור דוח':'עדכן מחירון'}</button><button type="button" class="btn ghost" id="btnCancelImport">ביטול</button></div>
+  </div>`;
+  el.querySelectorAll('[data-map]').forEach(s => s.addEventListener('change', () => { const v = s.value; if(v === '') delete P.map[s.dataset.map]; else P.map[s.dataset.map] = +v; previewMapping(); }));
+  $('#btnCancelImport').addEventListener('click', () => { S.pending = null; el.innerHTML = ''; });
+  $('#btnImport').addEventListener('click', () => P.kind === 'sales' ? importSales() : importCatalog());
+  previewMapping();
+}
+function fmtCell(v){ if(v instanceof Date) return isNaN(v) ? '' : ymd(v) + (v.getHours()||v.getMinutes() ? ' ' + String(v.getHours()).padStart(2,'0') + ':' + String(v.getMinutes()).padStart(2,'0') : ''); return v; }
+function previewMapping(){
+  const P = S.pending, el = $('#mapPreview'); if(!el) return;
+  if(P.kind === 'catalog'){ el.innerHTML = P.map.product == null ? '<p class="msg err">בחר את עמודת המוצר.</p>' : ''; return; }
+  const { rows, skipped, warn } = buildRows(P);
+  const tot = sum(rows.map(r=>r.s)), [a,b] = dataExtent(rows);
+  el.innerHTML = rows.length ? `<p class="msg ok">${nf0.format(rows.length)} שורות מכירה · ${money(tot)} · ${heDate(a)} – ${heDate(b)}${skipped ? ` · ${nf0.format(skipped)} שורות דולגו (חסר תאריך, מוצר או סכום, או שורות סיכום)` : ''}</p>${warn.map(w=>`<p class="small muted">• ${esc(w)}</p>`).join('')}` : `<p class="msg err">לא נמצאו שורות תקינות. ודא שבחרת עמודות של תאריך, מוצר וסכום (או מחיר).</p>`;
+}
+function num(v){ if(typeof v === 'number') return v; if(v == null) return NaN; let s = String(v).replace(/[₪\s,]/g,'').replace(/[^\d.\-()]/g,''); if(/^\(.*\)$/.test(s)) s = '-' + s.slice(1,-1); if(/-$/.test(s)) s = '-' + s.slice(0,-1); return s === '' ? NaN : parseFloat(s); }
+function parseDate(v){
+  if(v instanceof Date && !isNaN(v)) return { d: ymd(v), h: (v.getHours()||v.getMinutes()) ? v.getHours() : null };
+  if(typeof v === 'number' && v > 20000 && v < 80000){ const dt = new Date(Math.round((v - 25569) * 864e5)); const frac = v % 1; return { d: dt.getUTCFullYear()+'-'+String(dt.getUTCMonth()+1).padStart(2,'0')+'-'+String(dt.getUTCDate()).padStart(2,'0'), h: frac ? Math.floor(frac*24 + 1e-6) : null }; }
+  const s = String(v||'').trim(); if(!s) return null;
+  let m, d = null;
+  if((m = s.match(/(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/))) d = `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+  else if((m = s.match(/(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/))){ let y = m[3]; if(y.length === 2) y = '20' + y; d = `${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; }
+  if(!d) return null;
+  const [y, mo, da] = d.split('-').map(Number); if(mo < 1 || mo > 12 || da < 1 || da > 31) return null;
+  const t = s.match(/(\d{1,2}):(\d{2})/);
+  return { d, h: t ? +t[1] : null };
+}
+function parseHour(v){
+  if(v instanceof Date && !isNaN(v)) return v.getHours();
+  if(typeof v === 'number'){ if(v >= 0 && v < 1) return Math.floor(v*24 + 1e-6); if(Number.isInteger(v) && v >= 0 && v < 24) return v; if(v >= 1 && v < 80000) return Math.floor((v%1)*24 + 1e-6); }
+  const m = String(v||'').match(/(\d{1,2}):(\d{2})/); if(m) return +m[1];
+  const n = parseInt(v, 10); return (n >= 0 && n < 24) ? n : null;
+}
+function buildRows(P){
+  const M = P.map, rows = [], warn = []; let skipped = 0, costHits = {};
+  if(M.date == null || M.product == null || (M.total == null && M.price == null)) return { rows, skipped: P.data.length, warn };
+  for(const r of P.data){
+    const pd = parseDate(r[M.date]); const p = String(r[M.product] ?? '').trim();
+    if(!pd || !p || /^סה["״]?כ|^total|^סיכום/i.test(p)){ skipped++; continue; }
+    const q0 = M.qty != null ? num(r[M.qty]) : 1; const q = isNaN(q0) ? 1 : q0;
+    let s = M.total != null ? num(r[M.total]) : NaN;
+    if(isNaN(s) && M.price != null){ const pr = num(r[M.price]); if(!isNaN(pr)) s = pr * q; }
+    if(isNaN(s)){ skipped++; continue; }
+    let h = M.time != null ? parseHour(r[M.time]) : null; if(h == null) h = pd.h; if(h == null) h = -1;
+    const c = M.category != null ? String(r[M.category] ?? '').trim() : '';
+    const t = M.txn != null ? String(r[M.txn] ?? '').trim() : '';
+    const n = M.count != null ? (num(r[M.count]) || 0) : 0;
+    rows.push({ d: pd.d, h, t, p, c, q, s: Math.round(s*100)/100, n });
+    if(M.cost != null){ const k = num(r[M.cost]); if(!isNaN(k) && k > 0) costHits[p] = k; }
+  }
+  if(M.txn == null && M.count == null) warn.push('אין עמודת מספר קבלה: מספר העסקאות יוערך לפי תאריך ושעה, ולא יהיה ניתוח של מוצרים שנקנים יחד.');
+  if(M.time == null && !rows.some(r => r.h >= 0)) warn.push('אין שעות בדוח: לא יוצגו מכירות לפי שעה ומפת חום.');
+  if(M.cost == null) warn.push('אין עמודת עלות: אפשר להשלים עלויות בהמשך במסך המוצרים או להעלות קובץ עלויות.');
+  const dup = S.reports.find(r => { const [a,b] = dataExtent(rows); return r.active !== false && a && r.from && !(b < r.from || a > r.to); });
+  if(dup && !S.sample) warn.push(`התקופה חופפת לדוח ״${dup.name}״. אם זה אותו דוח, בטל אחד מהם ב״כלול״ כדי לא לספור פעמיים.`);
+  P.costHits = costHits;
+  return { rows, skipped, warn };
+}
+function leaveSample(){
+  if(!S.sample) return;
+  S.sample = false; S.reports = []; S.catalog = {}; S.fixed = { electricity:0, arnona:0, bank:0, salary:0, loans:0, rent:0, other:0 };
+  S.filter = { from:'', to:'', cat:'', prod:'' }; S.cmp = { aFrom:'', aTo:'', bFrom:'', bTo:'' }; S.answered = {};
+}
+async function importSales(){
+  const P = S.pending; const { rows } = buildRows(P);
+  if(!rows.length){ previewMapping(); return; }
+  const btn = $('#btnImport'); btn.disabled = true; btn.textContent = 'שומר…';
+  leaveSample();
+  const [a, b] = dataExtent(rows);
+  const rep = { id: uid(), name: ($('#repName')?.value || P.name).trim() || 'דוח', createdAt: new Date().toISOString(), from: a, to: b, rows, active: true, source: 'upload' };
+  rows.forEach(r => { if(!S.catalog[r.p]) S.catalog[r.p] = { c: r.c || '', cost: null }; else if(!S.catalog[r.p].c && r.c) S.catalog[r.p].c = r.c; });
+  Object.entries(P.costHits || {}).forEach(([p, k]) => { if(S.catalog[p].cost == null) S.catalog[p].cost = k; });
+  S.reports.push(rep); S.pending = null; rebuildRows();
+  try { await Store.saveReport(rep); await Store.saveCatalog(S.catalog); toast('הדוח נשמר: ' + nf0.format(rows.length) + ' שורות'); }
+  catch(e){ toast('הדוח נטען אבל לא נשמר: ' + (e.message || e.code || '')); }
+  S.filter = { from:'', to:'', cat:'', prod:'' }; S.cmp = { aFrom:'', aTo:'', bFrom:'', bTo:'' };
+  location.hash = 'dashboard'; render();
+}
+async function importCatalog(){
+  const P = S.pending, M = P.map; if(M.product == null) { previewMapping(); return; }
+  if(S.sample){ showMapMsg('catalog', 'קודם העלה דוח מכירות אחד, ואז עדכן את המחירון. כך העלויות יחוברו לנתונים שלך ולא לנתוני הדוגמה.', true); S.pending = null; return; }
+  let n = 0;
+  for(const r of P.data){
+    const p = String(r[M.product] ?? '').trim(); if(!p) continue;
+    const it = (S.catalog[p] ||= { c:'', cost:null });
+    if(M.cost != null){ const k = num(r[M.cost]); if(!isNaN(k)) it.cost = k; }
+    if(M.category != null && String(r[M.category]||'').trim()) it.c = String(r[M.category]).trim();
+    if(M.stock != null){ const k = num(r[M.stock]); if(!isNaN(k)) it.stock = k; }
+    if(M.lead != null){ const k = num(r[M.lead]); if(!isNaN(k)) it.lead = k; }
+    n++;
+  }
+  S.pending = null; rebuildRows();
+  try { await Store.saveCatalog(S.catalog); } catch(e){ toast('המחירון לא נשמר'); }
+  render(); showMapMsg('catalog', `עודכנו ${nf0.format(n)} מוצרים במחירון.`);
+}
+
+/* ---------- save analysis & export ---------- */
+function currentSnapshot(){
+  const A = analyze(filterRows(), S.filter);
+  return { A, k: { sales: A.sales, txns: A.txns, avg: A.avg, gp: A.gp, margin: A.margin, coverage: A.coverage, days: A.days } };
+}
+function modal(html, onMount){
+  const bg = document.createElement('div'); bg.className = 'modal-bg'; bg.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  bg.addEventListener('click', e => { if(e.target === bg) bg.remove(); });
+  document.body.appendChild(bg); onMount && onMount(bg, () => bg.remove());
+}
+function openSave(){
+  if(!S.rows.length) return;
+  const { k } = currentSnapshot();
+  modal(`<h2>שמירת ניתוח</h2><p class="muted">נשמרים הסינון הנוכחי (${esc(filterLabel())}) והמדדים: מכירות ${money(k.sales)}, ${nf0.format(k.txns)} עסקאות, רווח גולמי ${money(k.gp)}.</p>
+    <div class="field"><label for="anName">שם</label><input id="anName" value="${esc('ניתוח ' + filterLabel().split(' · ')[0])}"></div>
+    <div class="field"><label for="anNote">הערה (לא חובה)</label><textarea id="anNote" rows="3" placeholder="למשל: אחרי שהעברנו את החטיפים לקופה"></textarea></div>
+    ${S.sample ? '<p class="small muted">שים לב: זה ניתוח על נתוני הדוגמה, והוא יישמר רק עד שתעלה נתונים אמיתיים.</p>' : ''}
+    <div class="row-actions"><button class="btn primary" id="anOk" type="button">שמור</button><button class="btn ghost" id="anX" type="button">ביטול</button></div>`, (bg, close) => {
+      $('#anX', bg).addEventListener('click', close);
+      $('#anOk', bg).addEventListener('click', async () => {
+        const a = { id: uid(), name: $('#anName', bg).value.trim() || 'ניתוח', note: $('#anNote', bg).value.trim(), createdAt: new Date().toISOString(), filter: { ...S.filter }, k };
+        S.analyses.push(a); close(); render();
+        if(!S.sample){ try { await Store.saveAnalysis(a); toast('הניתוח נשמר'); } catch(e){ toast('השמירה נכשלה'); } } else toast('נשמר זמנית (נתוני דוגמה)');
+      });
+    });
+}
+function summaryText(){
+  const { A } = currentSnapshot();
+  const top = [...A.products].sort((a,b)=>b.s-a.s).slice(0,10);
+  const miss = A.products.filter(p=>p.cost===null).sort((a,b)=>b.s-a.s);
+  const F = sum(FIXED.map(([k])=>+S.fixed[k]||0));
+  const dpm = A.days ? Math.min(31, A.activeDays/A.days*30) : 26;
+  const gpMonth = A.margin!=null && A.activeDays ? A.sales/A.activeDays*A.margin*dpm : null;
+  const L = [];
+  L.push('מינימרקט ג׳יבלי · סיכום ניתוח מכירות'); L.push('תקופה וסינון: ' + filterLabel()); L.push('הופק: ' + heDate(ymd(new Date()))); L.push('');
+  L.push('מדדים'); L.push(`מכירות: ${money(A.sales)} (${A.activeDays} ימי פעילות)`); L.push(`עסקאות: ${nf0.format(A.txns)}${A.approxTx?' (חלקן משוערות)':''}`); L.push(`ממוצע עסקה: ${money2(A.avg)}`);
+  L.push(`רווח גולמי נמדד: ${money(A.gp)} (${pct(A.margin)}) על ${pct(A.coverage,0)} מהמכירות`); if(miss.length) L.push(`מוצרים בלי מחיר עלות: ${miss.length} (${money(A.uncoveredSales)} מכירות, לא נכללו ברווח)`);
+  if(F && gpMonth!=null) L.push(`הוצאות קבועות: ${money(F)} לחודש · רווח גולמי חודשי צפוי ${money(gpMonth)} · נטו משוער ${money(gpMonth-F)}`);
+  L.push(''); L.push('מכירות לפי קטגוריה'); A.cats.forEach(c => L.push(`- ${c.c}: ${money(c.s)} (${pct(c.s/A.sales)})${c.margin!=null?' · רווח '+pct(c.margin):''}`));
+  L.push(''); L.push('10 מוצרים מובילים'); top.forEach((p,i) => L.push(`${i+1}. ${p.p}: ${nf1.format(p.q)} יח׳ · ${money(p.s)}${p.gp!=null?' · רווח '+money(p.gp):''}`));
+  const fast = A.products.filter(p=>p.speed==='fast').map(p=>p.p), slow = A.products.filter(p=>p.speed==='slow').map(p=>p.p);
+  L.push(''); L.push('מוצרים מהירים: ' + (fast.slice(0,10).join(', ') || '—')); L.push('מוצרים איטיים: ' + (slow.slice(0,10).join(', ') || '—'));
+  if(miss.length){ L.push(''); L.push('חסר מחיר עלות: ' + miss.slice(0,20).map(p=>p.p).join(', ')); }
+  const promos = buildPromos(A, basketPairs(A)); if(promos.length){ L.push(''); L.push('הצעות'); promos.forEach(p => L.push('- ' + p.t.replace(/<[^>]+>/g,'') + ': ' + p.d.replace(/<[^>]+>/g,'').replace(/&[^;]+;/g,''))); }
+  return L.join('\n');
+}
+function summaryHtml(){
+  const t = summaryText();
+  const { A } = currentSnapshot();
+  const body = t.split('\n').map(l => l === '' ? '' : /^(מדדים|מכירות לפי קטגוריה|10 מוצרים מובילים|הצעות)$/.test(l) ? `<h2>${esc(l)}</h2>` : l.startsWith('מינימרקט') ? `<h1>${esc(l)}</h1>` : `<p>${esc(l)}</p>`).join('\n');
+  return `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><title>סיכום · מינימרקט ג׳יבלי</title><style>body{font-family:Assistant,Arial,sans-serif;max-width:760px;margin:32px auto;padding:0 16px;line-height:1.6;color:#15241f}h1{font-size:24px;border-bottom:3px solid #1d7a52;padding-bottom:6px}h2{font-size:18px;margin-top:22px;color:#1d7a52}p{margin:3px 0}</style></head><body>${body}</body></html>`;
+}
+function productsCsv(){
+  const A = analyze(filterRows(), S.filter);
+  const head = ['מוצר','קטגוריה','כמות','מכירות','מחיר מכירה ממוצע','עלות ליחידה','רווח גולמי','% רווח','מכירה ליום','קצב','ABC'];
+  const q = v => { const s = String(v ?? ''); return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
+  const lines = [head.join(',')].concat([...A.products].sort((a,b)=>b.s-a.s).map(p => [p.p, p.c, +p.q.toFixed(2), +p.s.toFixed(2), +p.unitPrice.toFixed(2), p.cost ?? 'חסר', p.gp!=null ? +p.gp.toFixed(2) : '', p.margin!=null ? +(p.margin*100).toFixed(1) : '', +p.vel.toFixed(2), p.speed==='fast'?'מהיר':p.speed==='slow'?'איטי':'בינוני', p.abc].map(q).join(',')));
+  return '\uFEFF' + lines.join('\n');
+}
+async function saveFile(filename, data){
+  try {
+    const dl = window.claude?.use ? await window.claude.use('downloads') : null;
+    if(dl){ await dl.save({ filename, data }); return true; }
+  } catch(e){ if(e && e.code === 'declined') return true; }
+  return false;
+}
+function openExport(){
+  if(!S.rows.length) return;
+  const stamp = ymd(new Date());
+  modal(`<h2>ייצוא סיכום</h2><p class="muted">הסיכום מבוסס על הסינון הנוכחי: ${esc(filterLabel())}</p>
+    <div class="row-actions">
+      <button class="btn primary" type="button" id="exHtml">קובץ סיכום (HTML)</button>
+      <button class="btn" type="button" id="exCsv">טבלת מוצרים (CSV לאקסל)</button>
+      <button class="btn" type="button" id="exCopy">העתק טקסט</button>
+    </div>
+    <div class="field"><label for="exText">תצוגה מקדימה</label><textarea id="exText" readonly>${esc(summaryText())}</textarea></div>
+    <div class="row-actions"><button class="btn ghost" type="button" id="exX">סגור</button></div>`, (bg, close) => {
+      $('#exX', bg).addEventListener('click', close);
+      const fallback = () => { const ta = $('#exText', bg); ta.focus(); ta.select(); toast('אי אפשר לשמור קובץ כאן. הטקסט מסומן להעתקה.'); };
+      $('#exHtml', bg).addEventListener('click', async () => { if(!(await saveFile(`gibli-summary-${stamp}.html`, summaryHtml()))) fallback(); });
+      $('#exCsv', bg).addEventListener('click', async () => { if(!(await saveFile(`gibli-products-${stamp}.csv`, productsCsv()))) { $('#exText', bg).value = productsCsv(); fallback(); } });
+      $('#exCopy', bg).addEventListener('click', () => { const t = $('#exText', bg).value; navigator.clipboard.writeText(t).then(()=>toast('הועתק'), fallback); });
+    });
+}
+
+/* ---------- router & render ---------- */
+function emptyView(){
+  return `${sampleBanner()}<section class="panel empty"><h2>אין מכירות בסינון הזה</h2><p style="margin-top:6px">נסה טווח תאריכים אחר, נקה את הסינון, או העלה דוח.</p><div class="row-actions" style="justify-content:center;margin-top:12px"><button type="button" class="btn" id="emptyClear">נקה סינון</button><a class="btn primary" href="#data">העלאת דוח</a></div></section>`;
+}
+const VIEWS = { dashboard: [viewDashboard, afterDashboard], products: [viewProducts, afterProducts], compare: [viewCompare, afterCompare], actions: [viewActions, afterActions], expenses: [viewExpenses, afterExpenses], data: [viewData, afterData] };
+function setStatus(){
+  const el = $('#status');
+  const m = Store.mode === 'db' ? ['ok','נשמר בחשבון'] : Store.mode === 'local' ? ['warn','נשמר בדפדפן הזה'] : ['','מתחבר…'];
+  el.innerHTML = `<span class="dot ${m[0]}"></span>${S.sample ? 'נתוני דוגמה · ' : ''}${m[1]}`;
+}
+function render(){
+  const h = location.hash.replace('#','');
+  S.tab = VIEWS[h] ? h : 'dashboard';
+  document.querySelectorAll('#tabs a').forEach(a => { if(a.dataset.tab === S.tab) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+  renderFilters();
+  const [v, after] = VIEWS[S.tab];
+  const view = $('#view');
+  view.innerHTML = v();
+  after && after();
+  wireExercises(view); wireTips(view);
+  $('#emptyClear')?.addEventListener('click', () => { S.filter = { from:'', to:'', cat:'', prod:'' }; render(); });
+  $('#btnSave').disabled = !S.rows.length; $('#btnExport').disabled = !S.rows.length;
+  setStatus();
+}
+window.addEventListener('hashchange', () => { window.scrollTo(0,0); render(); });
+let rT; window.addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(() => { if(S.tab === 'dashboard') afterDashboard(); if(S.tab === 'compare') afterCompare(); }, 200); });
+$('#btnSave').addEventListener('click', openSave);
+$('#btnExport').addEventListener('click', openExport);
+
+/* ---------- boot ---------- */
+(function boot(){
+  const smp = buildSample();
+  S.reports = [{ id:'sample', name:'נתוני דוגמה', from:'', to:'', rows: smp.rows, active:true }];
+  S.catalog = smp.catalog; S.fixed = smp.fixed;
+  rebuildRows();
+  render();
+  Store.init().then(async () => {
+    try {
+      const d = await Store.loadAll();
+      const hasData = d.reports.length || Object.keys(d.catalog).length || d.fixed;
+      if(hasData){
+        S.sample = false;
+        S.reports = d.reports.map(r => ({ ...r, _chunkCount: r.chunkCount }));
+        S.catalog = d.catalog || {};
+        S.fixed = { electricity:0, arnona:0, bank:0, salary:0, loans:0, rent:0, other:0, ...(d.fixed || {}) };
+        S.analyses = d.analyses || [];
+        S.answered = {};
+        rebuildRows();
+      }
+    } catch(e){ toast('טעינת הנתונים השמורים נכשלה. מוצגים נתוני דוגמה.'); }
+    render();
+  });
+})();
+})();
+</script>
